@@ -1,5 +1,6 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:lzzt/services/firebase.dart';
 
 class LoginPage extends StatelessWidget {
   final userGmailController = TextEditingController();
@@ -30,7 +31,6 @@ class LoginPage extends StatelessWidget {
                     _userMail = newValue!;
                   },
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
                     label: Text(
                       'Email',
                       style: TextStyle(fontSize: 20),
@@ -51,7 +51,6 @@ class LoginPage extends StatelessWidget {
                   },
                   keyboardType: TextInputType.text,
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
                     labelText: 'Şifre',
                   ),
                   validator: (value) {
@@ -63,30 +62,30 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(
                   height: 25,
                 ),
+                //!login in
                 ElevatedButton(
                   onPressed: () async {
-                    bool _validate = _formKey.currentState!.validate();
-                    if (_validate) {
+                    bool validate = _formKey.currentState!.validate();
+                    if (validate) {
                       _formKey.currentState!.save();
-                      debugPrint("başarılı giril");
-
+                      await FireBase.userLogIn(
+                          _userMail, _userPassword, context);
                       _formKey.currentState!.reset();
                     }
+                    debugPrint('başarısız giriş');
                   },
-                  child: const Text('Giriş Yap'),
+                  child: const Text('Giriş Yap',
+                      style: TextStyle(color: Colors.white)),
                 ),
 
-                const SizedBox(
-                  height: 12,
-                ),
+                const SizedBox(height: 12),
                 const Divider(),
+                const SizedBox(height: 12),
                 const Text("Hesabınız yok mu?"),
-                const SizedBox(
-                  height: 16,
-                ),
                 TextButton(
-                  onPressed: () {},
                   child: const Text("Kayıt ol"),
+                  onPressed: () =>
+                      Navigator.popAndPushNamed(context, '/signInPage'),
                 ),
               ],
             ),

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
@@ -20,7 +18,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             alignment: Alignment.centerLeft,
             child: IconButton(
               icon: const Icon(Icons.person_rounded),
-              onPressed: () => Navigator.pushNamed(context, '/signInPage'),
+              onPressed: () => Navigator.pushNamed(context, '/loginPage'),
             ),
           ),
         ),

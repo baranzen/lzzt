@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/constans/theme_data.dart';
 import 'package:lzzt/services/route_generator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -17,14 +19,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lzzt',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.black,
-          primary: Colors.black,
-        ),
-        useMaterial3: true,
-      ),
+      title: AppHelper.appName,
+      theme: appThemeData(),
       debugShowCheckedModeBanner: false,
       onGenerateRoute: RouteGenerator.routeGenerator,
     );
