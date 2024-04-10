@@ -25,15 +25,18 @@ class SignInPage extends StatelessWidget {
               const SizedBox(height: 25),
               //! Email
               TextFormField(
+                  keyboardType: TextInputType.emailAddress,
                   onSaved: (newValue) {
                     _userMail = newValue!;
                   },
                   decoration: const InputDecoration(
                     label: Text('Email'),
                   ),
-                  validator: (value) => value!.length < 6
-                      ? 'Şifre en az 6 karakter olmali'
-                      : null),
+                  validator: (value) {
+                    if (!EmailValidator.validate(value!)) {
+                      return 'Geçerli bir email giriniz';
+                    }
+                  }),
               const SizedBox(
                 height: 25,
               ),
@@ -43,7 +46,7 @@ class SignInPage extends StatelessWidget {
                 onSaved: (newValue) {
                   _userPassword = newValue!;
                 },
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.visiblePassword,
                 decoration: const InputDecoration(labelText: 'Şifre'),
                 validator: (value) =>
                     value!.length < 6 ? 'Şifre en az 6 karakter olmali' : null,

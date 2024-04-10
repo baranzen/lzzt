@@ -11,4 +11,6 @@ class AppHelper {
   static HexColor appColor1 = HexColor("#030637");
   static HexColor appColor2 = HexColor("#B25068");
   static HexColor appColor3 = HexColor("#774360");
+  static String defaultProfilePicture =
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/PICA.jpg/1200px-PICA.jpg";
 }

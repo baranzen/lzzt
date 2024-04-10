@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:lzzt/services/firebase.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppBarWidget({super.key});
@@ -18,7 +19,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             alignment: Alignment.centerLeft,
             child: IconButton(
               icon: const Icon(Icons.person_rounded),
-              onPressed: () => Navigator.pushNamed(context, '/loginPage'),
+              onPressed: () => FireBase.appBarProfileCheck(context),
             ),
           ),
         ),

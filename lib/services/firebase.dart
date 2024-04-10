@@ -1,23 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/widgets/alertWidget.dart';
+import 'package:lzzt/widgets/snackbar_message.dart';
 
 class FireBase {
   static Future<void> userSignIn(userMail, userPassword, context) async {
     late FirebaseAuth auth;
+    late FirebaseFirestore firestore;
     auth = FirebaseAuth.instance;
+    firestore = FirebaseFirestore.instance;
 
     try {
-      showDialog(
-        context: context,
-        builder: (_) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.teal,
-            ),
-          );
-        },
-      );
+      progressIndicator(context);
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: userMail,
         password: userPassword,
@@ -27,43 +23,109 @@ class FireBase {
       if (user!.emailVerified == false) {
         await user.sendEmailVerification();
       } else {
-        print('user is already verified');
+        debugPrint('user is already verified');
       }
-
-      print(userCredential.user!.email);
-      print('user created ');
-      print(user.displayName);
-      alertWidget("Başaralı kayıt", "Lütfen emaili doğrulayınız", context)
+      debugPrint('user created ${user.email}');
+      //!firestore
+      await firestore.collection('users').doc(user.uid).set({
+        'email': user.email,
+        'uid': user.uid,
+        'userName': '',
+        'userSurname': '',
+        'userPhotoUrl': '',
+        'userPhone': '',
+        'userAddress': '',
+        'userType': 'user',
+        'isAdmin': false,
+        'isEmailVerified': user.emailVerified,
+        'userRegisterDate': DateTime.now(),
+      });
+      Navigator.pop(context);
+      await alertWidget("Başaralı kayıt", "Lütfen emaili doğrulayınız", context)
           .then((value) => Navigator.pop(context));
     } on FirebaseAuthException catch (error) {
-      print(error.code);
-      print(error.message);
-      alertWidget("Hata", "$error.message", context);
+      debugPrint(error.code);
+      debugPrint(error.message);
+      await alertWidget("Hata", "$error.message", context)
+          .then((value) => Navigator.pop(context));
+    }
+  }
+
+  static Future<void> changeUserData(
+      userName, userSurname, userPhone, userAddress) async {
+    try {
+      var user = FirebaseAuth.instance.currentUser;
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .update({
+        'userName': userName,
+        'userSurname': userSurname,
+        'userPhone': userPhone,
+        'userAddress': userAddress,
+      });
+    } catch (e) {
+      debugPrint(e.toString());
     }
   }
 
   static Future<void> userLogIn(userMail, userPassword, context) async {
     try {
-      showDialog(
-        context: context,
-        builder: (_) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.teal,
-            ),
-          );
-        },
-      );
+      progressIndicator(context);
       var userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: userMail,
         password: userPassword,
       );
       debugPrint(userCredential.user!.email);
+      if (userCredential.user != null) {
+        Navigator.pop(context);
+      }
+      snackBarMessage(context, 'Giriş başarılı');
     } on FirebaseAuthException catch (error) {
       debugPrint(error.code);
       debugPrint(error.message);
-      alertWidget("Hata", "$error.message", context);
+      await alertWidget("Hata", "$error.message", context);
+    } finally {
+      Navigator.pop(context);
     }
+  }
+
+  static logOut(_) {
+    FirebaseAuth.instance.signOut();
+    alertWidget('Oturum sonlandirildi', '', _)
+        .then((value) => Navigator.pop(_));
+    Navigator.pop(_);
+    snackBarMessage(_, 'Oturum sonlandirildi');
+  }
+
+  static Future<Map<String, dynamic>?> getUserData() async {
+    var user = FirebaseAuth.instance.currentUser;
+    var userData = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get();
+    return userData.data()!;
+  }
+
+  static appBarProfileCheck(context) {
+    if (FirebaseAuth.instance.currentUser == null) {
+      Navigator.pushNamed(context, '/logInPage');
+    } else {
+      Navigator.pushNamed(context, '/userPage');
+    }
+  }
+
+  static Future<dynamic> progressIndicator(context) {
+    return showDialog(
+      context: context,
+      builder: (_) {
+        return Center(
+          child: CircularProgressIndicator(
+            color: AppHelper.appColor1,
+          ),
+        );
+      },
+    );
   }
 }
