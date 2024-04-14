@@ -8,12 +8,18 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      shadowColor: Colors.white,
-      backgroundColor: HexColor('#FFFFFF'),
       automaticallyImplyLeading: false,
       actions: [
         const SizedBox(width: 12),
-        Spacer(),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              icon: Icon(Icons.wb_sunny, color: Colors.yellow.shade700),
+              onPressed: () {},
+            ),
+          ),
+        ),
         Expanded(
           child: Align(
             alignment: Alignment.center,

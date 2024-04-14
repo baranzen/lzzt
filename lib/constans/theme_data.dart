@@ -3,6 +3,7 @@ import 'package:lzzt/constans/app_helper.dart';
 
 appThemeData() {
   return ThemeData(
+    brightness: Brightness.light,
     primaryColor: AppHelper.appColor1,
     primaryColorDark: AppHelper.appColor1,
     primaryColorLight: AppHelper.appColor1,
