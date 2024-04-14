@@ -1,4 +1,3 @@
-import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lzzt/constans/app_helper.dart';
@@ -10,6 +9,7 @@ class UserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(),
       body: SingleChildScrollView(
         child: SizedBox(
@@ -29,14 +29,18 @@ class UserPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                UserInformations(),
+                const UserInformations(),
                 const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text('Sifre Degistir'),
+                ),
                 TextButton(
                   child: const Text("cikiş yap"),
                   onPressed: () {
                     FireBase.logOut(context);
                   },
-                )
+                ),
               ],
             ),
           ),
@@ -47,7 +51,7 @@ class UserPage extends StatelessWidget {
 }
 
 class UserInformations extends StatefulWidget {
-  UserInformations({
+  const UserInformations({
     super.key,
   });
 
@@ -62,7 +66,7 @@ class _UserInformationsState extends State<UserInformations> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.grey.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: FutureBuilder(
@@ -80,7 +84,7 @@ class _UserInformationsState extends State<UserInformations> {
                 return const Text('hata oluştu');
               }
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 20, bottom: 20),
                 child: Form(
                   key: _formKey,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -198,6 +202,7 @@ class _UserInformationsState extends State<UserInformations> {
                               snapshot.data!['userSurname'],
                               snapshot.data!['userPhone'],
                               snapshot.data!['userAddress'],
+                              context,
                             );
                             _formKey.currentState!.reset();
                             setState(() {});
@@ -259,30 +264,54 @@ class _ProfilePictureState extends State<ProfilePicture> {
           ),
           onTap: () {
             showModalBottomSheet(
+              isScrollControlled: true,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               context: context,
               builder: (_) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.camera_alt),
-                      title: const Text('Kameradan Çek'),
-                      onTap: () {},
+                var url;
+                return SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 15,
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.image),
-                      title: const Text('Galeriden Seç'),
-                      onTap: () {},
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // url input
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: TextFormField(
+                            onChanged: (value) => url = value,
+                            decoration: InputDecoration(
+                              labelText: 'Resim URL',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        //button
+                        ElevatedButton(
+                          onPressed: () async {
+                            await FireBase.changeProfilePhoto(url, context);
+                            Navigator.pop(context);
+                            setState(() {});
+                          },
+                          child: const Text(
+                            'Değiştir',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );
-            setState(() {});
           },
+          splashColor: Colors.transparent,
         ),
       ),
     );

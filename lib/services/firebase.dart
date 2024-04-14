@@ -52,7 +52,7 @@ class FireBase {
   }
 
   static Future<void> changeUserData(
-      userName, userSurname, userPhone, userAddress) async {
+      userName, userSurname, userPhone, userAddress, context) async {
     try {
       var user = FirebaseAuth.instance.currentUser;
       await FirebaseFirestore.instance
@@ -64,8 +64,23 @@ class FireBase {
         'userPhone': userPhone,
         'userAddress': userAddress,
       });
+      snackBarMessage(context, 'Kullanıcı bilgileri güncellendi');
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  static Future<void> changeProfilePhoto(userPhotoUrl, context) async {
+    try {
+      progressIndicator(context);
+      var user = FirebaseAuth.instance.currentUser;
+      await user!.updatePhotoURL(userPhotoUrl);
+      snackBarMessage(context, 'Profil fotoğrafı güncellendi');
+    } catch (e) {
+      debugPrint(e.toString());
+      snackBarMessage(context, e);
+    } finally {
+      Navigator.pop(context);
     }
   }
 
@@ -81,6 +96,7 @@ class FireBase {
       if (userCredential.user != null) {
         Navigator.pop(context);
       }
+      userCheck(context);
       snackBarMessage(context, 'Giriş başarılı');
     } on FirebaseAuthException catch (error) {
       debugPrint(error.code);
@@ -91,14 +107,6 @@ class FireBase {
     }
   }
 
-  static logOut(_) {
-    FirebaseAuth.instance.signOut();
-    alertWidget('Oturum sonlandirildi', '', _)
-        .then((value) => Navigator.pop(_));
-    Navigator.pop(_);
-    snackBarMessage(_, 'Oturum sonlandirildi');
-  }
-
   static Future<Map<String, dynamic>?> getUserData() async {
     var user = FirebaseAuth.instance.currentUser;
     var userData = await FirebaseFirestore.instance
@@ -106,6 +114,14 @@ class FireBase {
         .doc(user!.uid)
         .get();
     return userData.data()!;
+  }
+
+  static Future<void> logOut(_) async {
+    await FirebaseAuth.instance.signOut();
+    alertWidget('Oturum sonlandirildi', '', _)
+        .then((value) => Navigator.pop(_));
+    Navigator.pop(_);
+    snackBarMessage(_, 'Oturum sonlandirildi');
   }
 
   static appBarProfileCheck(context) {
@@ -127,5 +143,15 @@ class FireBase {
         );
       },
     );
+  }
+
+  static Future<void> userCheck(_) async {
+    //! user Check
+    var userData = await getUserData(); // Kullanıcı verilerini bekleyin
+    if (userData!['isAdmin'] == true) {
+      debugPrint('admin logged in');
+
+      Navigator.pushReplacementNamed(_, '/adminPage');
+    }
   }
 }

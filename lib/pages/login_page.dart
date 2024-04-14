@@ -37,6 +37,7 @@ class LoginPage extends StatelessWidget {
                   children: [
                     //! Email
                     TextFormField(
+                        keyboardType: TextInputType.emailAddress,
                         onSaved: (newValue) {
                           _userMail = newValue!;
                         },
@@ -57,7 +58,7 @@ class LoginPage extends StatelessWidget {
                       onSaved: (newValue) {
                         _userPassword = newValue!;
                       },
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.visiblePassword,
                       decoration: const InputDecoration(
                         labelText: 'Şifre',
                       ),

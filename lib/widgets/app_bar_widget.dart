@@ -13,16 +13,7 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       actions: [
         const SizedBox(width: 12),
-        //!profile icon
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: IconButton(
-              icon: const Icon(Icons.person_rounded),
-              onPressed: () => FireBase.appBarProfileCheck(context),
-            ),
-          ),
-        ),
+        Spacer(),
         Expanded(
           child: Align(
             alignment: Alignment.center,
@@ -33,8 +24,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
           child: Align(
             alignment: Alignment.centerRight,
             child: IconButton(
-              icon: const Icon(Icons.shopping_basket_rounded),
-              onPressed: () {},
+              icon: const Icon(Icons.person_rounded),
+              onPressed: () => FireBase.appBarProfileCheck(context),
             ),
           ),
         ),
