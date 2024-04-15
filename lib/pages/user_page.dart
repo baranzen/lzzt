@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/services/firebase.dart';
+import 'package:lzzt/widgets/bottom_sheet_widget.dart';
 
 class UserPage extends StatelessWidget {
   const UserPage({super.key});
@@ -32,13 +33,22 @@ class UserPage extends StatelessWidget {
                 const UserInformations(),
                 const SizedBox(height: 20),
                 TextButton(
-                  onPressed: () {},
                   child: const Text('Sifre Degistir'),
+                  onPressed: () => bottomSheet(
+                    (value) async {
+                      await FireBase.changePassword(value, context);
+                      Navigator.pop(context);
+                    },
+                    'Yeni sifre giriniz',
+                    true,
+                    TextInputType.text,
+                    context,
+                  ),
                 ),
                 TextButton(
                   child: const Text("cikiş yap"),
-                  onPressed: () {
-                    FireBase.logOut(context);
+                  onPressed: () async {
+                    await FireBase.logOut(context);
                   },
                 ),
               ],
@@ -241,13 +251,34 @@ class _ProfilePictureState extends State<ProfilePicture> {
     User? user = FirebaseAuth.instance.currentUser;
     return SizedBox(
       width: 200,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(500),
-        child: InkWell(
+      child: InkWell(
+        splashColor: Colors.transparent,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(500),
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              Image.network(user?.photoURL ?? AppHelper.defaultProfilePicture),
+              Image.network(
+                user?.photoURL ?? AppHelper.defaultProfilePicture,
+                fit: BoxFit.cover,
+                width: 200,
+                height: 200,
+                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+                    Container(
+                  width: 200,
+                  height: 200,
+                  child: child,
+                ),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(8),
@@ -262,57 +293,20 @@ class _ProfilePictureState extends State<ProfilePicture> {
               ),
             ],
           ),
-          onTap: () {
-            showModalBottomSheet(
-              isScrollControlled: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              context: context,
-              builder: (_) {
-                var url;
-                return SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 15,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // url input
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: TextFormField(
-                            onChanged: (value) => url = value,
-                            decoration: InputDecoration(
-                              labelText: 'Resim URL',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        //button
-                        ElevatedButton(
-                          onPressed: () async {
-                            await FireBase.changeProfilePhoto(url, context);
-                            Navigator.pop(context);
-                            setState(() {});
-                          },
-                          child: const Text(
-                            'Değiştir',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-          splashColor: Colors.transparent,
         ),
+        onTap: () {
+          bottomSheet(
+            (value) async {
+              await FireBase.changeProfilePhoto(value, context);
+              Navigator.pop(context);
+              setState(() {});
+            },
+            'Resim URL',
+            false,
+            TextInputType.url,
+            context,
+          );
+        },
       ),
     );
   }

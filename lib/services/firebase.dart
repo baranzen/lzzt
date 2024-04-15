@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/services/hive_services.dart';
 import 'package:lzzt/widgets/alertWidget.dart';
 import 'package:lzzt/widgets/snackbar_message.dart';
 
@@ -70,6 +71,34 @@ class FireBase {
     }
   }
 
+  static Future<void> changePassword(newPassword, context) async {
+    try {
+      progressIndicator(context);
+      var user = FirebaseAuth.instance.currentUser;
+      await user!.reload();
+      await user.updatePassword(newPassword);
+      snackBarMessage(context, 'Şifre güncellendi');
+    } catch (e) {
+      debugPrint(e.toString());
+      snackBarMessage(context, e);
+    } finally {
+      Navigator.pop(context);
+    }
+  }
+
+  static Future<void> resetPassword(email, context) async {
+    try {
+      progressIndicator(context);
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      snackBarMessage(context, 'Şifre sıfırlama maili gönderildi');
+    } catch (e) {
+      debugPrint(e.toString());
+      snackBarMessage(context, e);
+    } finally {
+      Navigator.pop(context);
+    }
+  }
+
   static Future<void> changeProfilePhoto(userPhotoUrl, context) async {
     try {
       progressIndicator(context);
@@ -117,11 +146,19 @@ class FireBase {
   }
 
   static Future<void> logOut(_) async {
-    await FirebaseAuth.instance.signOut();
-    alertWidget('Oturum sonlandirildi', '', _)
-        .then((value) => Navigator.pop(_));
-    Navigator.pop(_);
-    snackBarMessage(_, 'Oturum sonlandirildi');
+    try {
+      progressIndicator(_);
+      await FirebaseAuth.instance.signOut();
+      alertWidget('Oturum sonlandirildi', '', _)
+          .then((value) => Navigator.pop(_));
+      Navigator.pop(_);
+      snackBarMessage(_, 'Oturum sonlandirildi');
+    } catch (e) {
+      debugPrint(e.toString());
+      snackBarMessage(_, e);
+    } finally {
+      Navigator.pop(_);
+    }
   }
 
   static appBarProfileCheck(context) {
@@ -150,8 +187,10 @@ class FireBase {
     var userData = await getUserData(); // Kullanıcı verilerini bekleyin
     if (userData!['isAdmin'] == true) {
       debugPrint('admin logged in');
-
+      HiveServices.setAdmin(true);
       Navigator.pushReplacementNamed(_, '/adminPage');
     }
   }
+
+  static changeProfilePicture(String value, BuildContext context) {}
 }

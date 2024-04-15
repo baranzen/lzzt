@@ -1,6 +1,8 @@
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lzzt/services/firebase.dart';
+import 'package:lzzt/widgets/bottom_sheet_widget.dart';
 
 class LoginPage extends StatelessWidget {
   final userGmailController = TextEditingController();
@@ -94,6 +96,19 @@ class LoginPage extends StatelessWidget {
                       child: const Text("Kayıt ol"),
                       onPressed: () =>
                           Navigator.popAndPushNamed(context, '/signInPage'),
+                    ),
+                    TextButton(
+                      child: const Text('Şifremi unuttum'),
+                      onPressed: () => bottomSheet(
+                        (value) async {
+                          await FireBase.resetPassword(value, context);
+                          Navigator.pop(context);
+                        },
+                        'Mail adresi',
+                        false,
+                        TextInputType.emailAddress,
+                        context,
+                      ),
                     ),
                   ],
                 ),

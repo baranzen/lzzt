@@ -4,12 +4,15 @@ import 'package:lzzt/pages/home_page.dart';
 import 'package:lzzt/pages/login_page.dart';
 import 'package:lzzt/pages/signin_page.dart';
 import 'package:lzzt/pages/user_page.dart';
+import 'package:lzzt/services/hive_services.dart';
 
 class RouteGenerator {
   static Route<dynamic>? routeGenerator(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return pageRouteBuilder(const HomePage());
+        return HiveServices.isAdmin()
+            ? pageRouteBuilder(const AdminPage())
+            : pageRouteBuilder(const HomePage());
       case '/logInPage':
         return pageRouteBuilder(LoginPage());
       case '/signInPage':
