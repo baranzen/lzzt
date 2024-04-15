@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
 import 'package:lzzt/widgets/bottom_sheet_widget.dart';
 
@@ -45,10 +47,17 @@ class UserPage extends StatelessWidget {
                     context,
                   ),
                 ),
-                TextButton(
-                  child: const Text("cikiş yap"),
-                  onPressed: () async {
-                    await FireBase.logOut(context);
+                Consumer(
+                  builder: (context, ref, child) {
+                    return TextButton(
+                      child: const Text("cikiş yap"),
+                      onPressed: () async {
+                        await FireBase.logOut(context);
+                        ref
+                            .read(isAdminNotifierProvider.notifier)
+                            .logOutAdmin();
+                      },
+                    );
                   },
                 ),
               ],

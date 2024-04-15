@@ -1,6 +1,8 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
 import 'package:lzzt/widgets/bottom_sheet_widget.dart';
 
@@ -72,21 +74,29 @@ class LoginPage extends StatelessWidget {
                     ),
 
                     //!login in
-                    ElevatedButton(
-                      onPressed: () async {
-                        bool validate = _formKey.currentState!.validate();
-                        if (validate) {
-                          _formKey.currentState!.save();
-                          debugPrint('$_userMail, $_userPassword');
-                          await FireBase.userLogIn(
-                              _userMail, _userPassword, context);
-                          _formKey.currentState!.reset();
-                        } else {
-                          debugPrint('validate false');
-                        }
+                    Consumer(
+                      builder: (context, ref, child) {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            bool validate = _formKey.currentState!.validate();
+                            if (validate) {
+                              _formKey.currentState!.save();
+                              debugPrint('$_userMail, $_userPassword');
+                              await FireBase.userLogIn(
+                                      _userMail, _userPassword, context)
+                                  ? ref
+                                      .read(isAdminNotifierProvider.notifier)
+                                      .setAdmin()
+                                  : null;
+                              _formKey.currentState!.reset();
+                            } else {
+                              debugPrint('validate false');
+                            }
+                          },
+                          child: const Text('Giriş Yap',
+                              style: TextStyle(color: Colors.white)),
+                        );
                       },
-                      child: const Text('Giriş Yap',
-                          style: TextStyle(color: Colors.white)),
                     ),
 
                     const SizedBox(height: 12),

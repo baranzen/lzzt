@@ -20,9 +20,9 @@ class HiveServices {
     return box.get('isAdmin') ?? false;
   }
 
-  static void setAdmin(bool value) {
+  static Future<void> setAdmin(bool value) async {
     var box = Hive.box('lzzt');
-    box.put('isAdmin', value);
+    await box.put('isAdmin', value);
     debugPrint('isAdmin: $value set in Hive');
   }
 }

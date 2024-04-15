@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/hive_services.dart';
 import 'package:lzzt/widgets/alertWidget.dart';
 import 'package:lzzt/widgets/snackbar_message.dart';
@@ -113,7 +116,8 @@ class FireBase {
     }
   }
 
-  static Future<void> userLogIn(userMail, userPassword, context) async {
+  static Future<bool> userLogIn(
+      userMail, userPassword, BuildContext context) async {
     try {
       progressIndicator(context);
       var userCredential =
@@ -125,12 +129,13 @@ class FireBase {
       if (userCredential.user != null) {
         Navigator.pop(context);
       }
-      userCheck(context);
       snackBarMessage(context, 'Giriş başarılı');
+      return await userCheck(context);
     } on FirebaseAuthException catch (error) {
       debugPrint(error.code);
       debugPrint(error.message);
       await alertWidget("Hata", "$error.message", context);
+      return false;
     } finally {
       Navigator.pop(context);
     }
@@ -151,6 +156,7 @@ class FireBase {
       await FirebaseAuth.instance.signOut();
       alertWidget('Oturum sonlandirildi', '', _)
           .then((value) => Navigator.pop(_));
+      await HiveServices.setAdmin(false);
       Navigator.pop(_);
       snackBarMessage(_, 'Oturum sonlandirildi');
     } catch (e) {
@@ -182,14 +188,15 @@ class FireBase {
     );
   }
 
-  static Future<void> userCheck(_) async {
+  static Future<bool> userCheck(BuildContext context) async {
     //! user Check
     var userData = await getUserData(); // Kullanıcı verilerini bekleyin
-    if (userData!['isAdmin'] == true) {
+    if (userData!['isAdmin']) {
       debugPrint('admin logged in');
-      HiveServices.setAdmin(true);
-      Navigator.pushReplacementNamed(_, '/adminPage');
+      await HiveServices.setAdmin(true);
+      return true;
     }
+    return false;
   }
 
   static changeProfilePicture(String value, BuildContext context) {}

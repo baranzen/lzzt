@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lzzt/pages/admin_page.dart';
 import 'package:lzzt/pages/home_page.dart';
 import 'package:lzzt/pages/login_page.dart';
 import 'package:lzzt/pages/signin_page.dart';
 import 'package:lzzt/pages/user_page.dart';
+import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/hive_services.dart';
 
 class RouteGenerator {
   static Route<dynamic>? routeGenerator(RouteSettings settings) {
     switch (settings.name) {
       case '/':
-        return HiveServices.isAdmin()
-            ? pageRouteBuilder(const AdminPage())
-            : pageRouteBuilder(const HomePage());
+        return _buildRouteForHome();
       case '/logInPage':
         return pageRouteBuilder(LoginPage());
       case '/signInPage':
@@ -23,6 +23,19 @@ class RouteGenerator {
         return pageRouteBuilder(const AdminPage());
     }
     return null;
+  }
+
+  static PageRouteBuilder<dynamic> _buildRouteForHome() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final isAdmin = ref.watch(isAdminNotifierProvider);
+            return isAdmin ? const AdminPage() : const HomePage();
+          },
+        );
+      },
+    );
   }
 
   static PageRouteBuilder<dynamic> pageRouteBuilder(route) {
