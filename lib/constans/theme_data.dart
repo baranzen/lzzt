@@ -8,6 +8,7 @@ appThemeDataLight() {
     primaryColor: AppHelper.appColor1,
     primaryColorDark: AppHelper.appColor1,
     primaryColorLight: AppHelper.appColor1,
+
     useMaterial3: true,
     //! inputDecorationTheme
     inputDecorationTheme: InputDecorationTheme(
@@ -19,17 +20,15 @@ appThemeDataLight() {
         fontSize: 17,
       ),
     ),
-    //! ElevatedButton
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(AppHelper.appColor2),
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppHelper.appColor2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
         ),
       ),
     ),
+    //! ElevatedButton
   );
 }
 
@@ -37,7 +36,6 @@ appThemeDataDark() {
   return ThemeData(
     brightness: Brightness.dark,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-
     useMaterial3: true,
     //! inputDecorationTheme
     inputDecorationTheme: InputDecorationTheme(
@@ -50,12 +48,10 @@ appThemeDataDark() {
     ),
     //! ElevatedButton
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(AppHelper.appColor2),
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppHelper.appColor2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
         ),
       ),
     ),

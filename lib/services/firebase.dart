@@ -1,10 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:lzzt/constans/app_helper.dart';
-import 'package:lzzt/providers/app_provider.dart';
+import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/hive_services.dart';
 import 'package:lzzt/widgets/alertWidget.dart';
 import 'package:lzzt/widgets/snackbar_message.dart';
@@ -130,7 +130,7 @@ class FireBase {
         Navigator.pop(context);
       }
       snackBarMessage(context, 'Giriş başarılı');
-      return await userCheck(context);
+      return await userCheck();
     } on FirebaseAuthException catch (error) {
       debugPrint(error.code);
       debugPrint(error.message);
@@ -188,7 +188,7 @@ class FireBase {
     );
   }
 
-  static Future<bool> userCheck(BuildContext context) async {
+  static Future<bool> userCheck() async {
     //! user Check
     var userData = await getUserData(); // Kullanıcı verilerini bekleyin
     if (userData!['isAdmin']) {
@@ -199,5 +199,96 @@ class FireBase {
     return false;
   }
 
-  static changeProfilePicture(String value, BuildContext context) {}
+  static Future<void> addProductsCollection(productName, productDescription,
+      productPrice, productImageURL, productStock, context) async {
+    try {
+      progressIndicator(context);
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+
+      DocumentReference userDocRef = fireStore
+          .collection('products')
+          .doc(FirebaseAuth.instance.currentUser!.uid);
+
+      await userDocRef.collection('adminProducts').add({
+        'productName': productName,
+        'productDescription': productDescription,
+        'productPrice': productPrice,
+        'productImageURL': productImageURL,
+        'productStock': productStock,
+        'productOwner': FirebaseAuth.instance.currentUser!.uid,
+        'productID': UniqueKey().toString(),
+        'productDate': DateTime.now(),
+      });
+
+      debugPrint('product added');
+      snackBarMessage(context, 'Ürün eklendi');
+    } on FirebaseAuthException catch (error) {
+      debugPrint(error.code);
+      debugPrint(error.message);
+      snackBarMessage(context, error.message);
+    } finally {
+      Navigator.pop(context);
+    }
+  }
+
+  static Future<List<Products>> getAdminsProducts() async {
+    try {
+      List<Products> adminProducts = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      DocumentReference userDocRef = fireStore
+          .collection('products')
+          .doc(FirebaseAuth.instance.currentUser!.uid);
+
+      QuerySnapshot userProductsSnapshot =
+          await userDocRef.collection('adminProducts').get();
+
+      userProductsSnapshot.docs.forEach((productDoc) {
+        Map<String, dynamic> productData =
+            productDoc.data() as Map<String, dynamic>;
+        adminProducts.add(Products(
+          productData['productName'],
+          productData['productDescription'],
+          productData['productPrice'],
+          productData['productImageURL'],
+          productData['productStock'],
+          productData['productOwner'],
+          productData['productID'],
+          productData['productDate'],
+        ));
+      });
+      return adminProducts;
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  static Stream<List<Products>> getAdminsProductsRealTime() {
+    StreamController<List<Products>> _adminProductsController =
+        StreamController<List<Products>>.broadcast();
+    List<Products> adminProducts = [];
+
+    FirebaseFirestore fireStore = FirebaseFirestore.instance;
+    fireStore
+        .collection('products')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('adminProducts')
+        .snapshots()
+        .listen((event) {
+      event.docs.forEach((element) {
+        adminProducts.add(Products(
+          element['productName'],
+          element['productDescription'],
+          element['productPrice'],
+          element['productImageURL'],
+          element['productStock'],
+          element['productOwner'],
+          element['productID'],
+          element['productDate'],
+        ));
+      });
+      _adminProductsController.add(adminProducts);
+    });
+    return _adminProductsController.stream;
+  }
 }

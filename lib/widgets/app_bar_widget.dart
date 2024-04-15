@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
-import 'package:lzzt/services/hive_services.dart';
 
 class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   const AppBarWidget({super.key});
@@ -11,15 +9,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: false,
       actions: [
-        const SizedBox(width: 12),
-        const Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: IsDarkIcon(),
-          ),
-        ),
+        const Spacer(),
         Expanded(
           child: Align(
             alignment: Alignment.center,
@@ -28,10 +19,20 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
         ),
         Expanded(
           child: Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              icon: const Icon(Icons.person_rounded),
-              onPressed: () => FireBase.appBarProfileCheck(context),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Expanded(
+                  child: IsDarkIcon(),
+                ),
+                Expanded(
+                  child: IconButton(
+                    icon: const Icon(Icons.person_rounded),
+                    onPressed: () => FireBase.appBarProfileCheck(context),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -51,8 +52,8 @@ class IsDarkIcon extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     return IconButton(
       icon: ref.watch<bool>(isDarkNotifierProvider)
-          ? const Icon(Icons.light_mode, color: Colors.white)
-          : const Icon(Icons.dark_mode, color: Colors.black),
+          ? const Icon(Icons.light_mode, color: Colors.yellow)
+          : const Icon(Icons.dark_mode),
       onPressed: ref.read(isDarkNotifierProvider.notifier).changeTheme,
     );
   }

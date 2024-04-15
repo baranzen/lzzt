@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lzzt/pages/admin_page.dart';
+import 'package:lzzt/pages/admin_page_products.dart';
 import 'package:lzzt/pages/home_page.dart';
 import 'package:lzzt/pages/login_page.dart';
 import 'package:lzzt/pages/signin_page.dart';
 import 'package:lzzt/pages/user_page.dart';
 import 'package:lzzt/providers/app_provider.dart';
-import 'package:lzzt/services/hive_services.dart';
 
 class RouteGenerator {
   static Route<dynamic>? routeGenerator(RouteSettings settings) {
@@ -21,6 +21,8 @@ class RouteGenerator {
         return pageRouteBuilder(const UserPage());
       case '/adminPage':
         return pageRouteBuilder(const AdminPage());
+      case '/adminPageProducts':
+        return pageRouteBuilder(const AdminPageProducts());
     }
     return null;
   }
