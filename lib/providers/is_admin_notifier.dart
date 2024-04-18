@@ -11,8 +11,10 @@ class IsAdminNotifier extends StateNotifier<bool> {
     debugPrint('isAdmin: $state set in IsAdminNotifier');
   }
 
-  void logOutAdmin() {
+  Future<void> logOutAdmin() async {
+    // widget agacindaki tum widgetlari
     state = false;
+    await HiveServices.setAdmin(false);
     debugPrint('isAdmin: $state set in IsAdminNotifier');
   }
 }

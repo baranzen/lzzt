@@ -47,24 +47,28 @@ class UserPage extends StatelessWidget {
                     context,
                   ),
                 ),
-                Consumer(
-                  builder: (context, ref, child) {
-                    return TextButton(
-                      child: const Text("cikiş yap"),
-                      onPressed: () async {
-                        await FireBase.logOut(context);
-                        ref
-                            .read(isAdminNotifierProvider.notifier)
-                            .logOutAdmin();
-                      },
-                    );
-                  },
-                ),
+                const LogOutButton()
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class LogOutButton extends ConsumerWidget {
+  const LogOutButton({super.key});
+
+  @override
+  Widget build(BuildContext context, ref) {
+    return TextButton(
+      onPressed: () async {
+        await FireBase.logOut(context).then((value) {
+          ref.read(isAdminNotifierProvider.notifier).logOutAdmin();
+        });
+      },
+      child: const Text('cikis yap', style: TextStyle(color: Colors.red)),
     );
   }
 }

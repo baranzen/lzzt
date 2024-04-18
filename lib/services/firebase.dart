@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -150,15 +151,12 @@ class FireBase {
     return userData.data()!;
   }
 
-  static Future<void> logOut(_) async {
+  static Future<void> logOut(BuildContext _) async {
     try {
       progressIndicator(_);
       await FirebaseAuth.instance.signOut();
-      alertWidget('Oturum sonlandirildi', '', _)
-          .then((value) => Navigator.pop(_));
-      await HiveServices.setAdmin(false);
-      Navigator.pop(_);
       snackBarMessage(_, 'Oturum sonlandirildi');
+      Navigator.pop(_);
     } catch (e) {
       debugPrint(e.toString());
       snackBarMessage(_, e);
@@ -205,11 +203,7 @@ class FireBase {
       progressIndicator(context);
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
 
-      DocumentReference userDocRef = fireStore
-          .collection('products')
-          .doc(FirebaseAuth.instance.currentUser!.uid);
-
-      await userDocRef.collection('adminProducts').add({
+      await fireStore.collection('products').add({
         'productName': productName,
         'productDescription': productDescription,
         'productPrice': productPrice,
@@ -231,31 +225,57 @@ class FireBase {
     }
   }
 
+  static Future<List<Products>> getProducts(BuildContext context) async {
+    try {
+      List<Products> products = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot = fireStore.collection('products');
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          products.add(Products(
+            element['productName'],
+            element['productDescription'],
+            element['productPrice'],
+            element['productImageURL'],
+            element['productStock'],
+            element['productOwner'],
+            element['productID'],
+            element['productDate'],
+          ));
+        }
+      });
+
+      return products;
+    } catch (error) {
+      print('Error getting products: $error');
+      return [];
+    }
+  }
+
   static Future<List<Products>> getAdminsProducts() async {
     try {
       List<Products> adminProducts = [];
+      var uID = FirebaseAuth.instance.currentUser!.uid;
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
-      DocumentReference userDocRef = fireStore
+      debugPrint('uID: $uID');
+      var querySnapshot = fireStore
           .collection('products')
-          .doc(FirebaseAuth.instance.currentUser!.uid);
-
-      QuerySnapshot userProductsSnapshot =
-          await userDocRef.collection('adminProducts').get();
-
-      userProductsSnapshot.docs.forEach((productDoc) {
-        Map<String, dynamic> productData =
-            productDoc.data() as Map<String, dynamic>;
-        adminProducts.add(Products(
-          productData['productName'],
-          productData['productDescription'],
-          productData['productPrice'],
-          productData['productImageURL'],
-          productData['productStock'],
-          productData['productOwner'],
-          productData['productID'],
-          productData['productDate'],
-        ));
+          .where('productOwner', isEqualTo: uID);
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          adminProducts.add(Products(
+            element['productName'],
+            element['productDescription'],
+            element['productPrice'],
+            element['productImageURL'],
+            element['productStock'],
+            element['productOwner'],
+            element['productID'],
+            element['productDate'],
+          ));
+        }
       });
+      debugPrint('admin products length: ${adminProducts[0].productName}');
       return adminProducts;
     } catch (error) {
       debugPrint(error.toString());
@@ -263,32 +283,25 @@ class FireBase {
     }
   }
 
-  static Stream<List<Products>> getAdminsProductsRealTime() {
-    StreamController<List<Products>> _adminProductsController =
-        StreamController<List<Products>>.broadcast();
-    List<Products> adminProducts = [];
-
-    FirebaseFirestore fireStore = FirebaseFirestore.instance;
-    fireStore
-        .collection('products')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('adminProducts')
-        .snapshots()
-        .listen((event) {
-      event.docs.forEach((element) {
-        adminProducts.add(Products(
-          element['productName'],
-          element['productDescription'],
-          element['productPrice'],
-          element['productImageURL'],
-          element['productStock'],
-          element['productOwner'],
-          element['productID'],
-          element['productDate'],
-        ));
+  static Future<void> deleteProduct(productID, context) async {
+    try {
+      progressIndicator(context);
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      await fireStore
+          .collection('products')
+          .where('productID', isEqualTo: productID)
+          .get()
+          .then((value) {
+        value.docs.forEach((element) {
+          element.reference.delete();
+        });
       });
-      _adminProductsController.add(adminProducts);
-    });
-    return _adminProductsController.stream;
+      snackBarMessage(context, 'Ürün silindi');
+    } catch (error) {
+      debugPrint(error.toString());
+      snackBarMessage(context, error.toString());
+    } finally {
+      Navigator.pop(context);
+    }
   }
 }

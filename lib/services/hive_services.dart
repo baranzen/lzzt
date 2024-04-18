@@ -25,4 +25,20 @@ class HiveServices {
     await box.put('isAdmin', value);
     debugPrint('isAdmin: $value set in Hive');
   }
+
+  static Future<void> addBasket(productID) async {
+    var box = Hive.box('lzzt');
+    var basket = box.get('basket') ?? [];
+    if (!basket.contains(productID)) {
+      basket.add(productID);
+    }
+    box.put('basket', basket);
+    debugPrint(box.get('basket').toString());
+  }
+
+  static getBasket() {
+    var box = Hive.box('lzzt');
+    debugPrint('Basket: ${box.get('basket')} read from Hive');
+    return box.get('basket') ?? [];
+  }
 }
