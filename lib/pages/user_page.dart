@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
@@ -47,12 +48,31 @@ class UserPage extends StatelessWidget {
                     context,
                   ),
                 ),
-                const LogOutButton()
+                const LogOutButton(),
+                const DeleteAccountButton(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class DeleteAccountButton extends ConsumerWidget {
+  const DeleteAccountButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, ref) {
+    return TextButton(
+      child: const Text('Hesabi Sil'),
+      onPressed: () async {
+        await FireBase.deleteUserAccount(context).then((value) {
+          ref.read(isAdminNotifierProvider.notifier).logOutAdmin();
+        });
+      },
     );
   }
 }
@@ -89,7 +109,10 @@ class _UserInformationsState extends State<UserInformations> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        border: Border.all(
+          color: HexColor('#F3F5F7'),
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: FutureBuilder(
@@ -277,11 +300,14 @@ class _ProfilePictureState extends State<ProfilePicture> {
                 width: 200,
                 height: 200,
                 frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
-                    Container(
-                  width: 200,
-                  height: 200,
-                  child: child,
-                ),
+                    wasSynchronouslyLoaded
+                        ? child
+                        : AnimatedOpacity(
+                            opacity: frame == null ? 0 : 1,
+                            duration: const Duration(seconds: 1),
+                            curve: Curves.easeOut,
+                            child: child,
+                          ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) {
                     return child;

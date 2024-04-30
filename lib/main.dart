@@ -32,6 +32,10 @@ class MyApp extends ConsumerWidget {
       darkTheme: appThemeDataDark(),
       debugShowCheckedModeBanner: false,
       onGenerateRoute: RouteGenerator.routeGenerator,
+      themeAnimationStyle: AnimationStyle(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInCubic,
+      ),
     );
   }
 }

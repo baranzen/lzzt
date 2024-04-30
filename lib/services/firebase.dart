@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/hive_services.dart';
@@ -108,6 +107,10 @@ class FireBase {
       progressIndicator(context);
       var user = FirebaseAuth.instance.currentUser;
       await user!.updatePhotoURL(userPhotoUrl);
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'userPhotoUrl': userPhotoUrl});
       snackBarMessage(context, 'Profil fotoğrafı güncellendi');
     } catch (e) {
       debugPrint(e.toString());
@@ -300,6 +303,53 @@ class FireBase {
     } catch (error) {
       debugPrint(error.toString());
       snackBarMessage(context, error.toString());
+    } finally {
+      Navigator.pop(context);
+    }
+  }
+
+  static Future<List<Map<String, dynamic>>> getRestaurants() async {
+    //get users with isAdmin true
+    try {
+      List<Map<String, dynamic>> restaurants = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('users').where('isAdmin', isEqualTo: true);
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          restaurants.add({
+            'userName': element['userName'],
+            'userSurname': element['userSurname'],
+            'userPhotoUrl': element['userPhotoUrl'],
+            'userPhone': element['userPhone'],
+            'userAddress': element['userAddress'],
+            'userType': element['userType'],
+            'isAdmin': element['isAdmin'],
+            'isEmailVerified': element['isEmailVerified'],
+            'userRegisterDate': element['userRegisterDate'],
+          });
+        }
+      });
+      debugPrint('restaurants length: ${restaurants.length}');
+      return restaurants.reversed.toList();
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  static Future<void> deleteUserAccount(context) async {
+    try {
+      progressIndicator(context);
+      var user = FirebaseAuth.instance.currentUser;
+      await user!.delete();
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .delete();
+      snackBarMessage(context, 'Hesap silindi');
+    } catch (e) {
+      debugPrint(e.toString());
     } finally {
       Navigator.pop(context);
     }

@@ -8,9 +8,12 @@ class AppHelper {
   static const String appLogo = "assets/logo.png";
   static const String appSplash = "assets/splash/splash.png";
   static const String appFont = "assets/font/font.ttf";
-  static HexColor appColor1 = HexColor("#030637");
-  static HexColor appColor2 = HexColor("#B25068");
-  static HexColor appColor3 = HexColor("#774360");
+  static HexColor appColor1 = HexColor("#53B175");
+  static HexColor appLightThemeFontLargeColor = HexColor("#1B1C1E");
+  static HexColor appLightThemeBackgroundColor = HexColor("#F3F5F7");
+  static HexColor appDarkThemeBackgroundColor = HexColor("#0D1F29");
+  static HexColor appDarkThemeFontColor = HexColor("#617986");
+
   static String defaultProfilePicture =
       "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/PICA.jpg/1200px-PICA.jpg";
 }

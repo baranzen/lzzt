@@ -14,7 +14,7 @@ class HiveServices {
     debugPrint('Dark mode: $value set in Hive');
   }
 
-  static isAdmin() {
+  static bool isAdmin() {
     var box = Hive.box('lzzt');
     debugPrint('isAdmin: ${box.get('isAdmin') ?? false} read from Hive');
     return box.get('isAdmin') ?? false;

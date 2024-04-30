@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/providers/app_provider.dart';
 
 class BottomBarWidget extends ConsumerWidget {
-  const BottomBarWidget({
+  var currentIndex;
+  BottomBarWidget({
+    required this.currentIndex,
     super.key,
   });
 
@@ -13,6 +16,9 @@ class BottomBarWidget extends ConsumerWidget {
     final basketCount = ref.watch(basketNotifierProvider);
 
     return BottomNavigationBar(
+      currentIndex: currentIndex,
+      selectedItemColor: AppHelper.appColor1,
+      unselectedItemColor: Colors.grey,
       items: <BottomNavigationBarItem>[
         const BottomNavigationBarItem(
           icon: Icon(Icons.search),
@@ -47,6 +53,25 @@ class BottomBarWidget extends ConsumerWidget {
           label: 'Sepet',
         ),
       ],
+      onTap: (value) {
+        switch (value) {
+          case 0:
+            if (currentIndex != 0) {
+              Navigator.pushReplacementNamed(context, '/');
+            }
+            break;
+          case 1:
+            if (currentIndex != 1) {
+              Navigator.pushReplacementNamed(context, '/userOrdersPage');
+            }
+            break;
+          case 2:
+            if (currentIndex != 2) {
+              Navigator.pushReplacementNamed(context, '/userBasketPage');
+            }
+            break;
+        }
+      },
     );
   }
 }

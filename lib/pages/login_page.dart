@@ -25,7 +25,7 @@ class LoginPage extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Image.asset(
-                'assets/logo2.png',
+                'assets/logo.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -53,6 +53,7 @@ class LoginPage extends StatelessWidget {
                           if (!EmailValidator.validate(value!)) {
                             return 'Geçerli bir email giriniz';
                           }
+                          return null;
                         }),
 
                     //! Password
@@ -73,29 +74,35 @@ class LoginPage extends StatelessWidget {
                     ),
 
                     //!login in
-                    Consumer(
-                      builder: (context, ref, child) {
-                        return ElevatedButton(
-                          onPressed: () async {
-                            bool validate = _formKey.currentState!.validate();
-                            if (validate) {
-                              _formKey.currentState!.save();
-                              debugPrint('$_userMail, $_userPassword');
-                              await FireBase.userLogIn(
-                                      _userMail, _userPassword, context)
-                                  ? ref
-                                      .read(isAdminNotifierProvider.notifier)
-                                      .setAdmin()
-                                  : null;
-                              _formKey.currentState!.reset();
-                            } else {
-                              debugPrint('validate false');
-                            }
-                          },
-                          child: const Text('Giriş Yap',
-                              style: TextStyle(color: Colors.white)),
-                        );
-                      },
+                    SizedBox(
+                      width: double.infinity,
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          return ElevatedButton(
+                            onPressed: () async {
+                              bool validate = _formKey.currentState!.validate();
+                              if (validate) {
+                                _formKey.currentState!.save();
+                                debugPrint('$_userMail, $_userPassword');
+                                await FireBase.userLogIn(
+                                        _userMail, _userPassword, context)
+                                    ? ref
+                                        .read(isAdminNotifierProvider.notifier)
+                                        .setAdmin()
+                                    : null;
+                                _formKey.currentState!.reset();
+                              } else {
+                                debugPrint('validate false');
+                              }
+                            },
+                            child: const Padding(
+                              padding: EdgeInsets.only(top: 15, bottom: 15),
+                              child: Text('Giriş Yap',
+                                  style: TextStyle(color: Colors.white)),
+                            ),
+                          );
+                        },
+                      ),
                     ),
 
                     const SizedBox(height: 12),
