@@ -73,108 +73,123 @@ class HomePage extends StatelessWidget {
                                         ),
                                       ),
                                       width: 300,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          //! restaurant image
-                                          Expanded(
-                                            child: Image.network(
-                                              semanticLabel: data['userName'],
-                                              data['userPhotoUrl'],
-                                              fit: BoxFit.fitWidth,
-                                              width: 300,
-                                              frameBuilder: (context,
-                                                      child,
-                                                      frame,
-                                                      wasSynchronouslyLoaded) =>
-                                                  wasSynchronouslyLoaded
-                                                      ? child
-                                                      : AnimatedOpacity(
-                                                          opacity: frame == null
-                                                              ? 0
-                                                              : 1,
-                                                          duration:
-                                                              const Duration(
-                                                                  seconds: 1),
-                                                          curve: Curves.easeOut,
-                                                          child: child,
-                                                        ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 5),
-
-                                          //! restaurant informations
-                                          Padding(
-                                            padding: const EdgeInsets.all(10),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Text(
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, '/restaurantPage',
+                                              arguments: data);
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            //! restaurant image
+                                            Expanded(
+                                              child: Hero(
+                                                tag: data['userPhotoUrl'],
+                                                child: Image.network(
+                                                  semanticLabel:
                                                       data['userName'],
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleLarge,
-                                                    ),
-                                                    Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.star,
-                                                          color: AppHelper
-                                                              .appColor1,
-                                                        ),
-                                                        Text(
-                                                          '4.5',
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodySmall,
-                                                        ),
-                                                        Text(
-                                                          ' (200+)',
-                                                          style:
-                                                              Theme.of(context)
-                                                                  .textTheme
-                                                                  .bodySmall,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                  data['userPhotoUrl'],
+                                                  fit: BoxFit.fitWidth,
+                                                  width: 300,
+                                                  frameBuilder: (context,
+                                                          child,
+                                                          frame,
+                                                          wasSynchronouslyLoaded) =>
+                                                      wasSynchronouslyLoaded
+                                                          ? child
+                                                          : AnimatedOpacity(
+                                                              opacity:
+                                                                  frame == null
+                                                                      ? 0
+                                                                      : 1,
+                                                              duration:
+                                                                  const Duration(
+                                                                      seconds:
+                                                                          1),
+                                                              curve: Curves
+                                                                  .easeOut,
+                                                              child: child,
+                                                            ),
                                                 ),
-                                                const SizedBox(height: 5),
-                                                const Text(
-                                                    '210TL minimum sipariş'),
-                                                const SizedBox(height: 5),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.timelapse,
-                                                      color:
-                                                          AppHelper.appColor1,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      '30-40 dk',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodySmall,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 5),
+
+                                            //! restaurant informations
+                                            Padding(
+                                              padding: const EdgeInsets.all(10),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        data['userName'],
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .titleLarge,
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.star,
+                                                            color: AppHelper
+                                                                .appColor1,
+                                                          ),
+                                                          Text(
+                                                            '4.5',
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodySmall,
+                                                          ),
+                                                          Text(
+                                                            ' (200+)',
+                                                            style: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .bodySmall,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 5),
+                                                  const Text(
+                                                      '210TL minimum sipariş'),
+                                                  const SizedBox(height: 5),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.timelapse,
+                                                        color:
+                                                            AppHelper.appColor1,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        '30-40 dk',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodySmall,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   },

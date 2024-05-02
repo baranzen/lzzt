@@ -228,11 +228,14 @@ class FireBase {
     }
   }
 
-  static Future<List<Products>> getProducts(BuildContext context) async {
+  static Future<List<Products>> getProducts(uid) async {
     try {
       List<Products> products = [];
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
-      var querySnapshot = fireStore.collection('products');
+// gelen udi yani o restauranta gore urunleri getir
+      var querySnapshot = fireStore
+          .collection('products')
+          .where('productOwner', isEqualTo: uid);
       await querySnapshot.get().then((value) {
         for (var element in value.docs) {
           products.add(Products(
@@ -318,6 +321,7 @@ class FireBase {
       await querySnapshot.get().then((value) {
         for (var element in value.docs) {
           restaurants.add({
+            'email': element['email'],
             'userName': element['userName'],
             'userSurname': element['userSurname'],
             'userPhotoUrl': element['userPhotoUrl'],
