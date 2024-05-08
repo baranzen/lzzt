@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/services/firebase.dart';
@@ -13,6 +12,11 @@ class HomePage extends StatelessWidget {
         'https://static.vecteezy.com/system/resources/previews/024/280/420/non_2x/hot-and-fresh-tasty-delicious-grilled-hamburger-ai-generated-png.png',
     'Döner': 'https://pngimg.com/uploads/kebab/kebab_PNG45.png',
     'Pizza':
+        'https://pngfre.com/wp-content/uploads/pizza-png-from-pngfre-3.png',
+    'Burger2':
+        'https://static.vecteezy.com/system/resources/previews/024/280/420/non_2x/hot-and-fresh-tasty-delicious-grilled-hamburger-ai-generated-png.png',
+    'Döner2': 'https://pngimg.com/uploads/kebab/kebab_PNG45.png',
+    'Pizza2':
         'https://pngfre.com/wp-content/uploads/pizza-png-from-pngfre-3.png',
   };
   @override
@@ -34,9 +38,22 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Restoranlar',
-                      style: Theme.of(context).textTheme.titleLarge,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Restoranlar',
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          'Hepsini Gör',
+                          style:
+                              Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    color: AppHelper.appColor1,
+                                  ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     FutureBuilder(
@@ -47,7 +64,8 @@ class HomePage extends StatelessWidget {
                             return const Text('none');
                           case ConnectionState.waiting:
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           case ConnectionState.active:
                             return const Text('active');
                           case ConnectionState.done:
@@ -225,9 +243,23 @@ class MutfakWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Mutfaklar',
-          style: Theme.of(context).textTheme.titleLarge,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Mutfaklar',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            mutfakdata.isNotEmpty && mutfakdata.length > 1
+                ? Text(
+                    'Hepsini Gör',
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: AppHelper.appColor1,
+                        ),
+                  )
+                : Container(),
+          ],
         ),
         Container(
           margin: const EdgeInsets.symmetric(vertical: 20),

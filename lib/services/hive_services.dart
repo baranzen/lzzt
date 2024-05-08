@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:lzzt/models/products_model.dart';
 
 class HiveServices {
   static bool isDark() {
@@ -26,19 +27,36 @@ class HiveServices {
     debugPrint('isAdmin: $value set in Hive');
   }
 
-  static Future<void> addBasket(productID) async {
-    var box = Hive.box('lzzt');
-    var basket = box.get('basket') ?? [];
-    if (!basket.contains(productID)) {
-      basket.add(productID);
+//! basket
+  static Future<void> addBasket(Products products) async {
+    var box = await Hive.openBox<Products>('basket');
+    String productID = products.productID;
+
+    if (box.containsKey(productID)) {
+      debugPrint('Product already in basket');
+      return;
+    } else {
+      box.put(productID, products);
+      debugPrint('Product added to basket');
     }
-    box.put('basket', basket);
-    debugPrint(box.get('basket').toString());
+    box.toMap().forEach((key, value) {
+      debugPrint('Product: $key, ${value.productName}');
+    });
   }
 
-  static getBasket() {
-    var box = Hive.box('lzzt');
-    debugPrint('Basket: ${box.get('basket')} read from Hive');
-    return box.get('basket') ?? [];
+  static Future<List<Products>> getBasket() async {
+    var box = await Hive.openBox<Products>('basket');
+    var products = box.values.toList();
+    return products;
+  }
+
+  static removeBasketProduct(Products products) async {
+    var box = await Hive.openBox<Products>('basket');
+    box.delete(products.productID);
+  }
+
+  static Future<void> cleanBasket() async {
+    var box = await Hive.openBox<Products>('basket');
+    await box.clear();
   }
 }

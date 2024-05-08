@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/hive_services.dart';
@@ -322,6 +321,7 @@ class FireBase {
         for (var element in value.docs) {
           restaurants.add({
             'email': element['email'],
+            'uid': element['uid'],
             'userName': element['userName'],
             'userSurname': element['userSurname'],
             'userPhotoUrl': element['userPhotoUrl'],
@@ -356,6 +356,64 @@ class FireBase {
       debugPrint(e.toString());
     } finally {
       Navigator.pop(context);
+    }
+  }
+
+  static Future<void> userOrderBasket(List<Products> products, context) async {
+    try {
+      progressIndicator(context);
+      final user = FirebaseAuth.instance.currentUser;
+      final orderID = UniqueKey().toString();
+      FirebaseFirestore fireBaseStore = FirebaseFirestore.instance;
+      await fireBaseStore.collection('orders').add({
+        'orderID': orderID,
+        'orderOwner': user!.uid,
+        'productCount': products.length,
+        'productOwner': products[0].productOwner,
+        'orderDate': DateTime.now(),
+        'orderStatus': 'Siparişiniz alındı',
+        'orderProducts': products.map((e) => e.productID).toList(),
+        'productTotalPrice': products
+            .map((e) => e.productPrice)
+            .reduce((value, element) => value + element),
+      });
+      snackBarMessage(context, 'Siparişiniz alındı');
+    } on FirebaseAuthException catch (error) {
+      debugPrint(error.code);
+      debugPrint(error.message);
+      snackBarMessage(context, error.message);
+    } finally {
+      Navigator.pop(context);
+    }
+  }
+
+  static Future<List<dynamic>> getUserOrders(uid) async {
+    try {
+      List userOrders = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('orders').where('orderOwner', isEqualTo: uid);
+
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          userOrders.add({
+            'orderID': element['orderID'],
+            'orderOwner': element['orderOwner'],
+            'productCount': element['productCount'],
+            'productOwner': element['productOwner'],
+            'orderDate': element['orderDate'],
+            'orderStatus': element['orderStatus'],
+            'orderProducts': element['orderProducts'],
+            'productTotalPrice': element['productTotalPrice'],
+          });
+        }
+      });
+
+      return userOrders;
+    } on FirebaseException catch (error) {
+      debugPrint(error.code);
+      debugPrint(error.message);
+      return [];
     }
   }
 }

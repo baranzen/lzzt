@@ -33,14 +33,14 @@ class BottomBarWidget extends ConsumerWidget {
             children: [
               const Icon(Icons.shopping_cart),
               // Sepet sayısı sıfırdan büyükse CircleAvatar göster
-              if (basketCount > 0)
+              if (basketCount.length > 0)
                 Positioned(
                   right: 0,
                   child: CircleAvatar(
                     radius: 8,
                     backgroundColor: Colors.red,
                     child: Text(
-                      basketCount.toString(),
+                      basketCount.length.toString(),
                       style: const TextStyle(
                         fontSize: 12,
                         color: Colors.white,

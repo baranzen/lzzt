@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<void> alertWidget(title, text, context) async {
+Future<void> alertWidget(title, text, context, [Function? function]) async {
   return showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -17,9 +17,13 @@ Future<void> alertWidget(title, text, context) async {
         actions: <Widget>[
           TextButton(
             child: const Text('Tamam'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: function == null
+                ? () {
+                    Navigator.of(context).pop();
+                  }
+                : () {
+                    function();
+                  },
           ),
         ],
       );

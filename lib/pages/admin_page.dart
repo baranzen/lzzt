@@ -20,32 +20,88 @@ class AdminPage extends StatelessWidget {
             ),
             children: [
               ElevatedButton(
-                child: const Text(
-                  'Ürün Ekle',
-                  style: TextStyle(color: Colors.white),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    Text(
+                      'Ürün Ekle',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
                 onPressed: () => bottomSheet(context),
               ),
               ElevatedButton(
-                child: const Text(
-                  'Ürünler',
-                  style: TextStyle(color: Colors.white),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    Text(
+                      'Ürünler',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
                 onPressed: () =>
                     Navigator.pushNamed(context, '/adminPageProducts'),
               ),
               ElevatedButton(
                 onPressed: () {},
-                child: const Text(
-                  'Siparişler',
-                  style: TextStyle(color: Colors.white),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    Text(
+                      'Siparişler',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               ElevatedButton(
                 onPressed: () {},
-                child: const Text(
-                  'Istatistikler',
-                  style: TextStyle(color: Colors.white),
+                child: const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    Text(
+                      'Istatistikler',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
