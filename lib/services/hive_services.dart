@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:lzzt/models/products_model.dart';
+import 'package:lzzt/widgets/snackbar_message.dart';
 
 class HiveServices {
   static bool isDark() {
@@ -28,20 +29,19 @@ class HiveServices {
   }
 
 //! basket
-  static Future<void> addBasket(Products products) async {
+  static Future<void> addBasket(Products products, context) async {
     var box = await Hive.openBox<Products>('basket');
     String productID = products.productID;
 
     if (box.containsKey(productID)) {
       debugPrint('Product already in basket');
+      snackBarMessage(context, 'Ürün zaten sepetinizde var');
       return;
     } else {
       box.put(productID, products);
       debugPrint('Product added to basket');
+      snackBarMessage(context, 'Ürün sepetinize eklendi');
     }
-    box.toMap().forEach((key, value) {
-      debugPrint('Product: $key, ${value.productName}');
-    });
   }
 
   static Future<List<Products>> getBasket() async {

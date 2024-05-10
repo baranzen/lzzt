@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/hive_services.dart';
 import 'package:lzzt/widgets/snackbar_message.dart';
@@ -18,18 +17,28 @@ class BasketNotifier extends StateNotifier<List<Products>> {
 
   Future<void> addToBasket(Products product, context) async {
     // Ürünü sepete ekleyin
-    // ayni restoranda olup olmadığını kontrol edin
     List<Products> updatedBasketList = await HiveServices.getBasket();
-    if (updatedBasketList.isNotEmpty) {
+
+    //ayni restoran olup olmamasini kontrol et
+    if (updatedBasketList.length > 0) {
       if (updatedBasketList[0].productOwner != product.productOwner) {
         snackBarMessage(context, 'Farklı restorandan ürün ekleyemezsiniz');
         return;
       }
-      await HiveServices.addBasket(product);
-      // Sepeti güncelleyin
-      snackBarMessage(context, 'Ürün sepete eklendi');
-      state = updatedBasketList;
     }
+
+    //ayni urun eklenip eklenmedigini kontrol et
+    if (updatedBasketList.contains(product)) {
+      snackBarMessage(context, 'Ürün zaten sepetinizde var');
+      return;
+    }
+
+    updatedBasketList.add(product);
+    state = updatedBasketList;
+    // Sepete ekleyin
+    await HiveServices.addBasket(product, context);
+    debugPrint('Ürün sepete eklendi');
+    snackBarMessage(context, 'Ürün sepetinize eklendi');
   }
 
   getBasket() {
