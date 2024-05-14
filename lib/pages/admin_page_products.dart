@@ -82,88 +82,139 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                     child: ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        return Column(
-                          children: [
-                            Slidable(
-                              startActionPane: ActionPane(
-                                motion: const StretchMotion(),
+                        Products product = snapshot.data![index];
+                        return Slidable(
+                          startActionPane: ActionPane(
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                foregroundColor: Colors.white,
+                                autoClose: true,
+                                onPressed: (context) async {
+                                  bottomSheet(context, snapshot.data![index]);
+                                },
+                                icon: Icons.edit,
+                                label: 'Düzenle',
+                                backgroundColor: AppHelper.appColor1,
+                              ),
+                            ],
+                          ),
+                          endActionPane: ActionPane(
+                            motion: const StretchMotion(),
+                            children: [
+                              SlidableAction(
+                                autoClose: true,
+                                onPressed: (context) async {
+                                  await FireBase.deleteProduct(
+                                      snapshot.data![index].productID, context);
+                                  setState(() {});
+                                },
+                                label: 'Sil',
+                                icon: Icons.delete,
+                                backgroundColor: Colors.red,
+                              ),
+                            ],
+                          ),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 150,
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: HexColor("F3F5F7"),
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              padding: const EdgeInsets.all(10),
+                              margin: const EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                                bottom: 10,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  SlidableAction(
-                                    foregroundColor: Colors.white,
-                                    autoClose: true,
-                                    onPressed: (context) async {
-                                      bottomSheet(
-                                          context, snapshot.data![index]);
-                                    },
-                                    icon: Icons.edit,
-                                    label: 'Düzenle',
-                                    backgroundColor: AppHelper.appColor1,
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.max,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.productName,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium!
+                                              .copyWith(
+                                                color: HexColor('#333333'),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 20,
+                                              ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          product.productDescription.toString(),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                color: Colors.black
+                                                    .withOpacity(0.6),
+                                              ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 3,
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          '${product.productPrice.toString()} TL',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                color: Colors.black,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(5),
+                                    child: Image.network(
+                                      product.productImageURL,
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.cover,
+                                      frameBuilder: (BuildContext context,
+                                          Widget child,
+                                          int? frame,
+                                          bool wasSynchronouslyLoaded) {
+                                        if (wasSynchronouslyLoaded) {
+                                          return child;
+                                        }
+                                        return AnimatedOpacity(
+                                          child: child,
+                                          opacity: frame == null ? 0 : 1,
+                                          duration: const Duration(seconds: 1),
+                                          curve: Curves.easeOut,
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ],
-                              ),
-                              endActionPane: ActionPane(
-                                motion: const StretchMotion(),
-                                children: [
-                                  SlidableAction(
-                                    autoClose: true,
-                                    onPressed: (context) async {
-                                      await FireBase.deleteProduct(
-                                          snapshot.data![index].productID,
-                                          context);
-                                      setState(() {});
-                                    },
-                                    label: 'Sil',
-                                    icon: Icons.delete,
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                horizontalTitleGap: 10,
-                                contentPadding: const EdgeInsets.all(5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                title: Text(
-                                  snapshot.data![index].productName,
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                                subtitle: Text(
-                                  snapshot.data![index].productDescription,
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                                trailing: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${snapshot.data![index].productPrice} ₺',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
-                                    ),
-                                    Text(
-                                      'Stok: ${snapshot.data![index].productStock}',
-                                      style:
-                                          Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                  ],
-                                ),
-                                leading: ConstrainedBox(
-                                  constraints: const BoxConstraints(),
-                                  child: Image.network(
-                                    snapshot.data![index].productImageURL,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
                               ),
                             ),
-                            Divider(
-                              height: 1,
-                              color: HexColor("F3F5F7"),
-                            )
-                          ],
+                          ),
                         );
                       },
                     ),

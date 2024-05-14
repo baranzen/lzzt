@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hexcolor/hexcolor.dart';
-
 import 'package:lzzt/constans/app_helper.dart';
 import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/providers/app_provider.dart';

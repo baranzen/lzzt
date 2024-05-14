@@ -378,7 +378,20 @@ class FireBase {
         'productOwner': products[0].productOwner,
         'orderDate': DateTime.now(),
         'orderStatus': 'Siparişiniz alındı',
-        'orderProducts': products.map((e) => e.productID).toList(),
+        'orderProducts': products.map(
+          (e) {
+            return {
+              'productName': e.productName,
+              'productDescription': e.productDescription,
+              'productPrice': e.productPrice,
+              'productImageURL': e.productImageURL,
+              'productStock': e.productStock,
+              'productOwner': e.productOwner,
+              'productID': e.productID,
+              'productDate': e.productDate,
+            };
+          },
+        ).toList(),
         'productTotalPrice': products
             .map((e) => e.productPrice)
             .reduce((value, element) => value + element),

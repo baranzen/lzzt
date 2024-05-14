@@ -203,14 +203,14 @@ class UserBasketPage extends ConsumerWidget {
                                       );
                                     } else {
                                       await FireBase.userOrderBasket(
-                                              ref.read(basketNotifierProvider),
-                                              context)
-                                          .then(
+                                        ref.read(basketNotifierProvider),
+                                        context,
+                                      ); /* .then(
                                         (value) => ref
                                             .read(
                                                 basketNotifierProvider.notifier)
                                             .cleanBasket(context),
-                                      );
+                                      ); */
                                     }
                                   },
                                   child: const Text(
