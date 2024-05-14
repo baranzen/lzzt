@@ -175,7 +175,7 @@ class FireBase {
     }
   }
 
-  static Future<dynamic> progressIndicator(context) {
+  static Future<dynamic> progressIndicator(BuildContext context) {
     return showDialog(
       context: context,
       builder: (_) {
@@ -199,20 +199,26 @@ class FireBase {
     return false;
   }
 
-  static Future<void> addProductsCollection(productName, productDescription,
-      productPrice, productImageURL, productStock, context) async {
+  static Future<void> addProductsCollection(
+    productName,
+    productDescription,
+    productPrice,
+    productImageURL,
+    productStock,
+    context,
+  ) async {
     try {
       progressIndicator(context);
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
-
-      await fireStore.collection('products').add({
+      final String productID = UniqueKey().toString();
+      await fireStore.collection('products').doc(productID).set({
         'productName': productName,
         'productDescription': productDescription,
         'productPrice': productPrice,
         'productImageURL': productImageURL,
         'productStock': productStock,
         'productOwner': FirebaseAuth.instance.currentUser!.uid,
-        'productID': UniqueKey().toString(),
+        'productID': productID,
         'productDate': DateTime.now(),
       });
 
@@ -414,6 +420,36 @@ class FireBase {
       debugPrint(error.code);
       debugPrint(error.message);
       return [];
+    }
+  }
+
+  static Future<void> updateProduct(
+    productID,
+    productName,
+    productDescription,
+    productPrice,
+    productImageURL,
+    productStock,
+    context,
+  ) async {
+    try {
+      progressIndicator(context);
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+
+      await fireStore.collection('products').doc(productID).update({
+        'productName': productName,
+        'productDescription': productDescription,
+        'productPrice': productPrice,
+        'productImageURL': productImageURL,
+        'productStock': productStock,
+      }).then((value) {
+        snackBarMessage(context, 'Ürün güncellendi');
+      });
+    } catch (error) {
+      debugPrint(error.toString());
+      snackBarMessage(context, 'Ürün güncellenemedi $error');
+    } finally {
+      Navigator.pop(context);
     }
   }
 }

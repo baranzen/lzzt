@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:hexcolor/hexcolor.dart';
+import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/firebase.dart';
 import 'package:lzzt/widgets/app_bar_widget.dart';
 
@@ -79,24 +82,43 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                     child: ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        return Slidable(
-                          endActionPane: ActionPane(
-                            motion: const StretchMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (context) async {
-                                  await FireBase.deleteProduct(
-                                      snapshot.data![index].productID, context);
-                                  setState(() {});
-                                },
-                                icon: Icons.delete,
-                                backgroundColor: Colors.red,
+                        return Column(
+                          children: [
+                            Slidable(
+                              startActionPane: ActionPane(
+                                motion: const StretchMotion(),
+                                children: [
+                                  SlidableAction(
+                                    foregroundColor: Colors.white,
+                                    autoClose: true,
+                                    onPressed: (context) async {
+                                      bottomSheet(
+                                          context, snapshot.data![index]);
+                                    },
+                                    icon: Icons.edit,
+                                    label: 'Düzenle',
+                                    backgroundColor: AppHelper.appColor1,
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
+                              endActionPane: ActionPane(
+                                motion: const StretchMotion(),
+                                children: [
+                                  SlidableAction(
+                                    autoClose: true,
+                                    onPressed: (context) async {
+                                      await FireBase.deleteProduct(
+                                          snapshot.data![index].productID,
+                                          context);
+                                      setState(() {});
+                                    },
+                                    label: 'Sil',
+                                    icon: Icons.delete,
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
                                 horizontalTitleGap: 10,
                                 contentPadding: const EdgeInsets.all(5),
                                 shape: RoundedRectangleBorder(
@@ -136,9 +158,12 @@ class _ListViewWidgetState extends State<ListViewWidget> {
                                   ),
                                 ),
                               ),
-                              const Divider()
-                            ],
-                          ),
+                            ),
+                            Divider(
+                              height: 1,
+                              color: HexColor("F3F5F7"),
+                            )
+                          ],
                         );
                       },
                     ),
@@ -148,6 +173,169 @@ class _ListViewWidgetState extends State<ListViewWidget> {
           }
         },
       ),
+    );
+  }
+
+  bottomSheet(BuildContext context, Products product) {
+    final formKey = GlobalKey<FormState>();
+    String productName = product.productName;
+    String productDescription = product.productDescription;
+    double productdPrice = product.productPrice;
+    String productImageURL = product.productImageURL;
+    int producktStock = product.productStock;
+    showModalBottomSheet(
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      context: context,
+      builder: (context) {
+        return SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 15,
+              ),
+              child: Form(
+                key: formKey,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 15, top: 15),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      //! product name
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          initialValue: productName,
+                          obscureText: false,
+                          keyboardType: TextInputType.text,
+                          onChanged: (v) => productName = v,
+                          decoration: InputDecoration(
+                            labelText: 'Ürün Adı',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) => value!.length < 3
+                              ? 'En az 3 karakter olmali'
+                              : null,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          //! product description
+                          initialValue: productDescription,
+                          obscureText: false,
+                          keyboardType: TextInputType.text,
+                          onChanged: (v) => productDescription = v,
+                          decoration: InputDecoration(
+                            labelText: 'Ürün Aciklamasi',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) => value!.length < 10
+                              ? 'En az 10 karakter olmali'
+                              : null,
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          //! product price
+                          initialValue: productdPrice.toString(),
+                          obscureText: false,
+                          keyboardType: TextInputType.number,
+                          onChanged: (v) => productdPrice = double.parse(v),
+                          decoration: InputDecoration(
+                            labelText: 'Ucret',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) => value!.length < 1
+                              ? 'En az 1 karakter olmali'
+                              : null,
+                        ),
+                      ),
+
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          initialValue: productImageURL,
+                          //! product image
+                          obscureText: false,
+                          keyboardType: TextInputType.url,
+                          onChanged: (v) => productImageURL = v,
+                          decoration: InputDecoration(
+                            labelText: 'Resim Url',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) => value!.length < 10
+                              ? 'En az 10 karakter olmali'
+                              : null,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextFormField(
+                          initialValue: producktStock.toString(),
+                          //! prodcut stock
+                          obscureText: false,
+                          keyboardType: TextInputType.number,
+                          onChanged: (v) => producktStock = int.parse(v),
+                          decoration: InputDecoration(
+                            labelText: 'Stok Adedi',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (value) => value!.length < 1
+                              ? 'En az 1 karakter olmali'
+                              : null,
+                        ),
+                      ),
+
+                      //button
+                      ElevatedButton(
+                        onPressed: () async {
+                          bool validate = formKey.currentState!.validate();
+                          if (validate) {
+                            formKey.currentState!.save();
+                            //! update product
+                            await FireBase.updateProduct(
+                              product.productID,
+                              productName,
+                              productDescription,
+                              productdPrice,
+                              productImageURL,
+                              producktStock,
+                              context,
+                            );
+                            setState(() {});
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+                            formKey.currentState!.reset();
+                          }
+                        },
+                        child: const Text(
+                          'Ekle',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

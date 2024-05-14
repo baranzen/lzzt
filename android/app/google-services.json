@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "549665505037",
+    "project_id": "lzzt-e9fe0",
+    "storage_bucket": "lzzt-e9fe0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:549665505037:android:ead5bfb2af3e1bacdaba44",
+        "android_client_info": {
+          "package_name": "com.example.lzzt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCufEnkoKyGkispkBmubKve1G_1rDoq4oI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

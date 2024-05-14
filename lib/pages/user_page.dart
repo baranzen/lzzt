@@ -29,7 +29,7 @@ class UserPage extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Bilgilerim',
-                    style: Theme.of(context).textTheme.headline6,
+                    style: Theme.of(context).textTheme.headlineLarge,
                   ),
                 ),
                 const SizedBox(height: 20),

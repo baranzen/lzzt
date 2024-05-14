@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/services/firebase.dart';
 import 'package:lzzt/widgets/app_bar_widget.dart';
 import 'package:lzzt/widgets/bottom_bar_widget.dart';
