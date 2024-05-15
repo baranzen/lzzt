@@ -205,12 +205,12 @@ class UserBasketPage extends ConsumerWidget {
                                       await FireBase.userOrderBasket(
                                         ref.read(basketNotifierProvider),
                                         context,
-                                      ); /* .then(
+                                      ).then(
                                         (value) => ref
                                             .read(
                                                 basketNotifierProvider.notifier)
                                             .cleanBasket(context),
-                                      ); */
+                                      );
                                     }
                                   },
                                   child: const Text(

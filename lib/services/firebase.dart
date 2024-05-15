@@ -406,9 +406,10 @@ class FireBase {
     }
   }
 
-  static Future<List<dynamic>> getUserOrders(uid) async {
+  static Future<List<dynamic>> getUserOrders() async {
     try {
       List userOrders = [];
+      var uid = FirebaseAuth.instance.currentUser!.uid;
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
       var querySnapshot =
           fireStore.collection('orders').where('orderOwner', isEqualTo: uid);
@@ -427,7 +428,7 @@ class FireBase {
           });
         }
       });
-
+      userOrders.sort((a, b) => b['orderDate'].compareTo(a['orderDate']));
       return userOrders;
     } on FirebaseException catch (error) {
       debugPrint(error.code);
@@ -463,6 +464,17 @@ class FireBase {
       snackBarMessage(context, 'Ürün güncellenemedi $error');
     } finally {
       Navigator.pop(context);
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getRestaurantDetails(uid) async {
+    try {
+      var restaurantData =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      return restaurantData.data();
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
     }
   }
 }

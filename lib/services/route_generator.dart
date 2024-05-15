@@ -23,7 +23,7 @@ class RouteGenerator {
       case '/userPage':
         return pageRouteBuilder(const UserPage());
       case '/userOrdersPage':
-        return pageRouteBuilder(const UserOrdersPage(), isAppBar: true);
+        return pageRouteBuilder(UserOrdersPage(), isAppBar: true);
       case '/userBasketPage':
         return pageRouteBuilder(const UserBasketPage(), isAppBar: true);
       case '/restaurantPage':
