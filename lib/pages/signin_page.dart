@@ -37,6 +37,7 @@ class SignInPage extends StatelessWidget {
                     if (!EmailValidator.validate(value!)) {
                       return 'Geçerli bir email giriniz';
                     }
+                    return null;
                   }),
               const SizedBox(
                 height: 25,
