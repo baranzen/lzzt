@@ -20,7 +20,7 @@ class BasketNotifier extends StateNotifier<List<Products>> {
     List<Products> updatedBasketList = await HiveServices.getBasket();
 
     //ayni restoran olup olmamasini kontrol et
-    if (updatedBasketList.length > 0) {
+    if (updatedBasketList.isNotEmpty) {
       if (updatedBasketList[0].productOwner != product.productOwner) {
         snackBarMessage(context, 'Farklı restorandan ürün ekleyemezsiniz');
         return;

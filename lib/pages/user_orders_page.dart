@@ -1,11 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 import 'package:lzzt/constans/app_helper.dart';
+import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
 import 'package:lzzt/widgets/app_bar_widget.dart';
 import 'package:lzzt/widgets/bottom_bar_widget.dart';
+import 'package:lzzt/widgets/snackbar_message.dart';
+import 'package:star_rating/star_rating.dart';
 
 class UserOrdersPage extends StatelessWidget {
   const UserOrdersPage({super.key});
@@ -192,59 +197,58 @@ class UserOrdersPage extends StatelessWidget {
                                                         ),
                                                         const SizedBox(
                                                             height: 10),
-                                                        //! reoder button
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                              color: AppHelper
-                                                                  .appColor1,
+
+                                                        //! tekraarla button
+                                                        ElevatedButton(
+                                                          style: ButtonStyle(
+                                                            shape: MaterialStateProperty
+                                                                .all<
+                                                                    RoundedRectangleBorder>(
+                                                              RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            shape: BoxShape
-                                                                .rectangle,
+                                                            side: WidgetStateProperty
+                                                                .all<
+                                                                    BorderSide>(
+                                                              BorderSide(
+                                                                color: AppHelper
+                                                                    .appColor1,
+                                                                width: 0.8,
+                                                              ),
+                                                            ),
+                                                            visualDensity:
+                                                                const VisualDensity(
+                                                              vertical: 0.5,
+                                                            ),
+                                                            backgroundColor:
+                                                                MaterialStateProperty
+                                                                    .all<Color>(
+                                                              Colors.white,
+                                                            ),
                                                           ),
-                                                          child: TextButton(
-                                                            style: TextButton
-                                                                .styleFrom(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .symmetric(
-                                                                      vertical:
-                                                                          0,
-                                                                      horizontal:
-                                                                          10),
-                                                            ),
-                                                            onPressed: () {},
-                                                            child: const Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Icon(
-                                                                  Icons.refresh,
-                                                                ),
-                                                                SizedBox(
-                                                                    width: 5),
-                                                                Text(
-                                                                  'Tekrarla',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .black,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
+                                                          onPressed: () {},
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons.refresh,
+                                                                color: AppHelper
+                                                                    .appColor1,
+                                                              ),
+                                                              const Text(
+                                                                'Tekrarla',
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
                                                       ],
                                                     ),
                                                     const SizedBox(height: 10),
                                                     // print the order details with loop
+
                                                     ListView.builder(
                                                       shrinkWrap: true,
                                                       itemCount:
@@ -273,6 +277,63 @@ class UserOrdersPage extends StatelessWidget {
                                                           ),
                                                         );
                                                       },
+                                                    ),
+                                                    Divider(
+                                                      color:
+                                                          AppHelper.appColor2,
+                                                    ),
+                                                    //! değerlendir
+                                                    ElevatedButton(
+                                                      style: ButtonStyle(
+                                                        shape: MaterialStateProperty
+                                                            .all<
+                                                                RoundedRectangleBorder>(
+                                                          RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                        ),
+                                                        side:
+                                                            WidgetStateProperty
+                                                                .all<
+                                                                    BorderSide>(
+                                                          BorderSide(
+                                                            color: AppHelper
+                                                                .appColor1,
+                                                            width: 0.8,
+                                                          ),
+                                                        ),
+                                                        visualDensity:
+                                                            const VisualDensity(
+                                                          vertical: 0.5,
+                                                        ),
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(
+                                                          Colors.white,
+                                                        ),
+                                                      ),
+                                                      onPressed: () {
+                                                        order['isReviewed']
+                                                            ? snackBarMessage(
+                                                                context,
+                                                                'Bu sipariş zaten değerlendirildi.')
+                                                            : showModalBottomSheetReview(
+                                                                context,
+                                                                order,
+                                                              );
+                                                      },
+                                                      child: Text(
+                                                        order['isReviewed']
+                                                            ? 'Değerlendirildi'
+                                                            : 'Değerlendir',
+                                                        style: TextStyle(
+                                                          color: AppHelper
+                                                              .appColor1,
+                                                        ),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -313,6 +374,88 @@ class UserOrdersPage extends StatelessWidget {
       bottomNavigationBar: BottomBarWidget(
         currentIndex: 1,
       ),
+    );
+  }
+
+  Future showModalBottomSheetReview(context, order) async {
+    final formKey = GlobalKey<FormState>();
+
+    String review = '';
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Consumer(
+            builder: (context, ref, child) {
+              return Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 10),
+                    Center(
+                      child: StarRating(
+                        starSize: 30,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        rating: ref.watch(starRatingNotifierProvider),
+                        length: 5,
+                        onRaitingTap: (rating) {
+                          ref
+                              .read(starRatingNotifierProvider.notifier)
+                              .setRating(rating);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.text,
+                        onChanged: (v) => review = v,
+                        decoration: InputDecoration(
+                          labelText: 'Yorumunuz',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value!.length < 10) {
+                            return 'En az 10 karakter olmali';
+                          }
+                        },
+                      ),
+                    ),
+                    //button
+                    ElevatedButton(
+                      onPressed: () {
+                        bool validate = formKey.currentState!.validate();
+                        if (validate) {
+                          formKey.currentState!.save();
+
+                          debugPrint(
+                              'Yorum: $review, Puan: ${ref.watch(starRatingNotifierProvider)}, order: $order');
+                          FireBase.addReview(
+                            order,
+                            review,
+                            ref.watch(starRatingNotifierProvider),
+                          );
+                          formKey.currentState!.reset();
+                        } else {
+                          debugPrint('validate false');
+                        }
+                      },
+                      child: const Text(
+                        'Değerlendir',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

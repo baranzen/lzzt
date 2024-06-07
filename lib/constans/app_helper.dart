@@ -9,6 +9,7 @@ class AppHelper {
   static const String appSplash = "assets/splash/splash.png";
   static const String appFont = "assets/font/font.ttf";
   static HexColor appColor1 = HexColor("#53B175");
+  static HexColor appColor2 = HexColor("#F3F5F7");
   static HexColor appLightThemeFontLargeColor = HexColor("#1B1C1E");
   static HexColor appLightThemeBackgroundColor = HexColor("#F3F5F7");
   static HexColor appDarkThemeBackgroundColor = HexColor("#0D1F29");

@@ -48,6 +48,7 @@ dependencies:
   flutter_slidable: ^3.1.0
   flutter_native_splash: ^2.4.0
   intl: ^0.19.0
+  star_rating: ^0.11.0
 
 dev_dependencies:
   flutter_test:

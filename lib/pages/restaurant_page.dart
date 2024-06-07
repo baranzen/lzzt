@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -6,10 +8,25 @@ import 'package:lzzt/models/products_model.dart';
 import 'package:lzzt/providers/app_provider.dart';
 import 'package:lzzt/services/firebase.dart';
 
-// ignore: must_be_immutable
-class RestaurantPage extends StatelessWidget {
+class RestaurantPage extends StatefulWidget {
   Map<String, dynamic> data;
+
   RestaurantPage({super.key, required this.data});
+
+  @override
+  State<RestaurantPage> createState() => _RestaurantPageState();
+}
+
+class _RestaurantPageState extends State<RestaurantPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController =
+        TabController(length: 2, vsync: this); // length: 2 olarak güncellendi
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +34,29 @@ class RestaurantPage extends StatelessWidget {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            bottom: TabBar(
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                shadows: [
+                  Shadow(
+                    color: Colors.black,
+                    offset: Offset(1, 1),
+                    blurRadius: 3,
+                  ),
+                ],
+              ),
+              controller: _tabController,
+              tabs: const [
+                Tab(
+                  text: 'Ürünler',
+                ),
+                Tab(
+                  text: 'Yorumlar',
+                ),
+              ],
+            ),
             iconTheme: const IconThemeData(
               size: 30,
               color: Colors.white,
@@ -44,220 +84,245 @@ class RestaurantPage extends StatelessWidget {
               ),
             ],
             pinned: true,
-            expandedHeight: 300,
+            expandedHeight: 200,
             floating: true,
             centerTitle: true,
-            backgroundColor: AppHelper.appColor1,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(bottom: 10),
-              title: Text(
-                data['userName'],
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: Colors.white,
-                  shadows: [
-                    const Shadow(
-                      color: Colors.black,
-                      offset: Offset(1, 1),
-                      blurRadius: 3,
-                    ),
-                  ],
-                ),
-              ),
               background: Hero(
-                tag: data['userPhotoUrl'],
-                child: Image.network(
-                  data['userPhotoUrl'],
-                  fit: BoxFit.cover,
-                  frameBuilder: (BuildContext context, Widget child, int? frame,
-                      bool wasSynchronouslyLoaded) {
-                    if (wasSynchronouslyLoaded) {
-                      return child;
-                    }
-                    return AnimatedOpacity(
-                      child: child,
-                      opacity: frame == null ? 0 : 1,
-                      duration: const Duration(seconds: 1),
-                      curve: Curves.easeOut,
-                    );
-                  },
+                tag: widget.data['userPhotoUrl'],
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(widget.data['userPhotoUrl']),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.3),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(
-              height: 20,
-            ),
-          ),
-          FutureBuilder(
-            future: FireBase.getProducts(data['uid']),
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return const SliverToBoxAdapter(
-                    child: Text('none'),
-                  );
-                case ConnectionState.waiting:
-                  return const SliverToBoxAdapter(
-                      child: Center(child: CircularProgressIndicator()));
-                case ConnectionState.active:
-                  return const Text('active');
-                case ConnectionState.done:
-                  if (snapshot.hasError) {
-                    return const Text('error');
-                  } else {
-                    if (snapshot.data!.isEmpty) {
-                      return const SliverToBoxAdapter(
-                        child: Center(
-                          child: Text('Ürün yok...'),
-                        ),
-                      );
-                    } else {
-                      return SliverList.builder(
-                        itemBuilder: (context, index) {
-                          Products product = snapshot.data![index];
-                          return ConstrainedBox(
-                            constraints: const BoxConstraints(
-                              maxHeight: 150,
-                            ),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: HexColor("F3F5F7"),
-                                        width: 1,
-                                      ),
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.all(10),
-                                  margin: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                    bottom: 10,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              product.productName,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .titleMedium!
-                                                  .copyWith(
-                                                    color: HexColor('#333333'),
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 20,
-                                                  ),
-                                            ),
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              product.productDescription
-                                                  .toString(),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium!
-                                                  .copyWith(
-                                                    color: Colors.black
-                                                        .withOpacity(0.6),
-                                                  ),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 3,
-                                            ),
-                                            const SizedBox(height: 3),
-                                            Text(
-                                              '${product.productPrice.toString()} TL',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyMedium!
-                                                  .copyWith(
-                                                    color: Colors.black,
-                                                  ),
-                                            ),
-                                          ],
+          SliverFillRemaining(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                FutureBuilder<List<Products>>(
+                  future: FireBase.getProducts(widget.data['uid']),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text('An error occurred.'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('Ürün yok...'));
+                    }
+
+                    return CustomScrollView(
+                      slivers: [
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              Products product = snapshot.data![index];
+                              return ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxHeight: 150,
+                                ),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: HexColor("F3F5F7"),
+                                            width: 1,
+                                          ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
+                                      padding: const EdgeInsets.all(10),
+                                      margin: const EdgeInsets.only(
+                                        left: 10,
+                                        right: 10,
+                                        bottom: 10,
                                       ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(5),
-                                        child: Image.network(
-                                          product.productImageURL,
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                          frameBuilder: (BuildContext context,
-                                              Widget child,
-                                              int? frame,
-                                              bool wasSynchronouslyLoaded) {
-                                            if (wasSynchronouslyLoaded) {
-                                              return child;
-                                            }
-                                            return AnimatedOpacity(
-                                              child: child,
-                                              opacity: frame == null ? 0 : 1,
-                                              duration:
-                                                  const Duration(seconds: 1),
-                                              curve: Curves.easeOut,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.max,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  product.productName,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium!
+                                                      .copyWith(
+                                                        color:
+                                                            HexColor('#333333'),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        fontSize: 20,
+                                                      ),
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  product.productDescription
+                                                      .toString(),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium!
+                                                      .copyWith(
+                                                        color: Colors.black
+                                                            .withOpacity(0.6),
+                                                      ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 3,
+                                                ),
+                                                const SizedBox(height: 3),
+                                                Text(
+                                                  '${product.productPrice.toString()} TL',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium!
+                                                      .copyWith(
+                                                        color: Colors.black,
+                                                      ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            child: Image.network(
+                                              product.productImageURL,
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                              frameBuilder: (BuildContext
+                                                      context,
+                                                  Widget child,
+                                                  int? frame,
+                                                  bool wasSynchronouslyLoaded) {
+                                                if (wasSynchronouslyLoaded) {
+                                                  return child;
+                                                }
+                                                return AnimatedOpacity(
+                                                  child: child,
+                                                  opacity:
+                                                      frame == null ? 0 : 1,
+                                                  duration: const Duration(
+                                                      seconds: 1),
+                                                  curve: Curves.easeOut,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Positioned(
+                                      right: 10,
+                                      bottom: 15,
+                                      child: SizedBox(
+                                        width: 35,
+                                        height: 35,
+                                        child: Consumer(
+                                          builder: (context, ref, child) {
+                                            return IconButton.filled(
+                                              padding: EdgeInsets.zero,
+                                              iconSize: 20,
+                                              alignment: Alignment.center,
+                                              onPressed: () {
+                                                ref
+                                                    .read(basketNotifierProvider
+                                                        .notifier)
+                                                    .addToBasket(
+                                                        product, context);
+                                              },
+                                              icon: const Icon(
+                                                Icons.add,
+                                              ),
                                             );
                                           },
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 10,
-                                  bottom: 15,
-                                  child: SizedBox(
-                                    width: 35,
-                                    height: 35,
-                                    child: Consumer(
-                                      builder: (context, ref, child) {
-                                        return IconButton.filled(
-                                          padding: EdgeInsets.zero,
-                                          iconSize: 20,
-                                          alignment: Alignment.center,
-                                          onPressed: () {
-                                            ref
-                                                .read(basketNotifierProvider
-                                                    .notifier)
-                                                .addToBasket(product, context);
-                                          },
-                                          icon: const Icon(
-                                            Icons.add,
-                                          ),
-                                        );
-                                      },
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
-                        },
-                        itemCount: snapshot.data!.length,
-                      );
-                    }
-                  }
-              }
-            },
-          )
+                              );
+                            },
+                            childCount: snapshot.data!.length,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                //! yorumlar
+                Center(
+                  child: FutureBuilder(
+                    future: FireBase.getReviews(widget.data['uid']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return const Text('hata');
+                      } else if (!snapshot.hasData) {
+                        return const Text('Yorum yok...');
+                      }
+
+                      if (snapshot.data!.isEmpty) {
+                        return const Text('Yorum yok...');
+                      } else {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title:
+                                  Text(snapshot.data![index]['userName'] ?? ''),
+                              subtitle:
+                                  Text(snapshot.data![index]['review'] ?? ''),
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  snapshot.data![index]['userPhotoUrl'],
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(snapshot.data![index]['rating']
+                                      .toString()),
+                                  Icon(Icons.star, color: AppHelper.appColor1),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

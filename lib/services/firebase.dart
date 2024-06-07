@@ -55,8 +55,14 @@ class FireBase {
   }
 
   static Future<void> changeUserData(
-      userName, userSurname, userPhone, userAddress, context) async {
+    userName,
+    userSurname,
+    userPhone,
+    userAddress,
+    context,
+  ) async {
     try {
+      progressIndicator(context);
       var user = FirebaseAuth.instance.currentUser;
       await FirebaseFirestore.instance
           .collection('users')
@@ -67,9 +73,14 @@ class FireBase {
         'userPhone': userPhone,
         'userAddress': userAddress,
       });
+      await user.updateDisplayName('$userName $userSurname');
+      await user.reload();
+
       snackBarMessage(context, 'Kullanıcı bilgileri güncellendi');
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      Navigator.pop(context);
     }
   }
 
@@ -110,6 +121,8 @@ class FireBase {
           .collection('users')
           .doc(user.uid)
           .update({'userPhotoUrl': userPhotoUrl});
+      await user.updatePhotoURL(userPhotoUrl);
+      await user.reload();
       snackBarMessage(context, 'Profil fotoğrafı güncellendi');
     } catch (e) {
       debugPrint(e.toString());
@@ -378,6 +391,7 @@ class FireBase {
         'productOwner': products[0].productOwner,
         'orderDate': DateTime.now(),
         'orderStatus': 'Siparişiniz alındı',
+        'isReviewed': false,
         'orderProducts': products.map(
           (e) {
             return {
@@ -423,6 +437,7 @@ class FireBase {
             'productOwner': element['productOwner'],
             'orderDate': element['orderDate'],
             'orderStatus': element['orderStatus'],
+            'isReviewed': element['isReviewed'],
             'orderProducts': element['orderProducts'],
             'productTotalPrice': element['productTotalPrice'],
           });
@@ -475,6 +490,83 @@ class FireBase {
     } catch (e) {
       debugPrint(e.toString());
       return null;
+    }
+  }
+
+  static Future<void> addReview(order, review, rating) async {
+    try {
+      var user = FirebaseAuth.instance.currentUser;
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      await fireStore.collection('reviews').add({
+        'orderID': order['orderID'],
+        'products': order['orderProducts'],
+        'restaurant': order['productOwner'],
+        'userName': user!.displayName,
+        'userPhotoUrl': user.photoURL,
+        'review': review,
+        'rating': rating,
+        'reviewOwner': user!.uid,
+        'reviewDate': DateTime.now(),
+      });
+      await fireStore
+          .collection('orders')
+          .where('orderID', isEqualTo: order['orderID'])
+          .get()
+          .then((value) {
+        value.docs.forEach((element) {
+          element.reference.update({'isReviewed': true});
+        });
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  static Future<double> getRatingRestaurants(uid) async {
+    try {
+      double rating = 0;
+      int ratingCount = 0;
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('reviews').where('restaurant', isEqualTo: uid);
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          rating += element['rating'];
+          ratingCount++;
+        }
+      });
+      return rating / ratingCount;
+    } catch (error) {
+      debugPrint(error.toString());
+      return 0;
+    }
+  }
+
+  static Future<List> getReviews(uid) async {
+    try {
+      List reviews = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('reviews').where('restaurant', isEqualTo: uid);
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          reviews.add({
+            'orderID': element['orderID'],
+            'products': element['products'],
+            'restaurant': element['restaurant'],
+            'userName': element['userName'],
+            'userPhotoUrl': element['userPhotoUrl'],
+            'review': element['review'],
+            'rating': element['rating'],
+            'reviewOwner': element['reviewOwner'],
+            'reviewDate': element['reviewDate'],
+          });
+        }
+      });
+      return reviews;
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
     }
   }
 }
