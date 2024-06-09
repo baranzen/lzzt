@@ -386,6 +386,8 @@ class FireBase {
       FirebaseFirestore fireBaseStore = FirebaseFirestore.instance;
       await fireBaseStore.collection('orders').add({
         'orderID': orderID,
+        'userName': user!.displayName,
+        'userPhotoUrl': user.photoURL,
         'orderOwner': user!.uid,
         'productCount': products.length,
         'productOwner': products[0].productOwner,
@@ -493,8 +495,9 @@ class FireBase {
     }
   }
 
-  static Future<void> addReview(order, review, rating) async {
+  static Future<void> addReview(order, review, rating, context) async {
     try {
+      progressIndicator(context);
       var user = FirebaseAuth.instance.currentUser;
       FirebaseFirestore fireStore = FirebaseFirestore.instance;
       await fireStore.collection('reviews').add({
@@ -517,8 +520,12 @@ class FireBase {
           element.reference.update({'isReviewed': true});
         });
       });
+      Navigator.pop(context);
+      snackBarMessage(context, 'Değerlendirme eklendi');
     } catch (e) {
       debugPrint(e.toString());
+    } finally {
+      Navigator.pop(context);
     }
   }
 
@@ -564,6 +571,103 @@ class FireBase {
         }
       });
       return reviews;
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  Future<List> getRestaurantRatingsAndReviews(uid) async {
+    try {
+      var rating = await getRatingRestaurants(uid);
+      var reviews = await getReviews(uid);
+      return [rating, reviews];
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  static Future<List> getRestaurantOrders(uid) async {
+    try {
+      List restaurantOrders = [];
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('orders').where('productOwner', isEqualTo: uid);
+      var userAddress = '';
+      var userPhone = '';
+      await fireStore.collection('users').doc(uid).get().then((value) {
+        userAddress = value['userAddress'];
+        userPhone = value['userPhone'];
+      });
+      await querySnapshot.get().then((value) {
+        for (var element in value.docs) {
+          restaurantOrders.add({
+            'orderID': element['orderID'],
+            'userName': element['userName'],
+            'userAddress': userAddress,
+            'userPhotoUrl': element['userPhotoUrl'],
+            'userPhone': userPhone,
+            'orderOwner': element['orderOwner'],
+            'productCount': element['productCount'],
+            'productOwner': element['productOwner'],
+            'orderDate': element['orderDate'],
+            'orderStatus': element['orderStatus'],
+            'isReviewed': element['isReviewed'],
+            'orderProducts': element['orderProducts'],
+            'productTotalPrice': element['productTotalPrice'],
+          });
+        }
+      });
+      restaurantOrders.sort((a, b) => b['orderDate'].compareTo(a['orderDate']));
+      return restaurantOrders;
+    } catch (error) {
+      debugPrint(error.toString());
+      return [];
+    }
+  }
+
+  static Future<List<dynamic>> getRestaurantStatistics(String uid) async {
+    try {
+      List statistics = [];
+      List reviews = await getReviews(uid);
+
+      String topProductName = '';
+      int totalOrders = 0;
+      double totalIncome = 0.0;
+      int totalProducts = 0;
+      double totalRatings = await getRatingRestaurants(uid);
+      int totalReviews = reviews.length;
+
+      FirebaseFirestore fireStore = FirebaseFirestore.instance;
+      var querySnapshot =
+          fireStore.collection('orders').where('productOwner', isEqualTo: uid);
+
+      await querySnapshot.get().then((value) {
+        totalOrders = value.docs.length;
+        totalIncome = value.docs
+            .map((e) => e['productTotalPrice'])
+            .reduce((value, element) => value + element);
+      });
+
+      var querySnapshot2 = fireStore
+          .collection('products')
+          .where('productOwner', isEqualTo: uid);
+      await querySnapshot2.get().then((value) {
+        totalProducts = value.docs.length;
+        topProductName = value.docs[0]['productName'];
+      });
+
+      statistics.add({
+        'totalOrders': totalOrders,
+        'totalIncome': totalIncome,
+        'totalProducts': totalProducts,
+        'totalRatings': totalRatings,
+        'totalReviews': totalReviews,
+        'topProductName': topProductName,
+      });
+
+      return statistics;
     } catch (error) {
       debugPrint(error.toString());
       return [];

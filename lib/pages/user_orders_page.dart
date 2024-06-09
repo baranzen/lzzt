@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -434,11 +433,8 @@ class UserOrdersPage extends StatelessWidget {
 
                           debugPrint(
                               'Yorum: $review, Puan: ${ref.watch(starRatingNotifierProvider)}, order: $order');
-                          FireBase.addReview(
-                            order,
-                            review,
-                            ref.watch(starRatingNotifierProvider),
-                          );
+                          FireBase.addReview(order, review,
+                              ref.watch(starRatingNotifierProvider), context);
                           formKey.currentState!.reset();
                         } else {
                           debugPrint('validate false');

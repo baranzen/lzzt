@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:lzzt/constans/app_helper.dart';
@@ -138,74 +139,7 @@ class HomePage extends StatelessWidget {
                                             const SizedBox(height: 5),
 
                                             //! restaurant informations
-                                            Padding(
-                                              padding: const EdgeInsets.all(10),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        data['userName'],
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .titleLarge,
-                                                      ),
-                                                      Row(
-                                                        children: [
-                                                          Icon(
-                                                            Icons.star,
-                                                            color: AppHelper
-                                                                .appColor1,
-                                                          ),
-                                                          Text(
-                                                            '4.5',
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodySmall,
-                                                          ),
-                                                          Text(
-                                                            ' (200+)',
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodySmall,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 5),
-                                                  const Text(
-                                                      '210TL minimum sipariş'),
-                                                  const SizedBox(height: 5),
-                                                  Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.timelapse,
-                                                        color:
-                                                            AppHelper.appColor1,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        '30-40 dk',
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .bodySmall,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                            RestaurantWidget(data: data),
                                           ],
                                         ),
                                       ),
@@ -225,6 +159,110 @@ class HomePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomBarWidget(currentIndex: 0),
+    );
+  }
+}
+
+class RestaurantWidget extends StatelessWidget {
+  const RestaurantWidget({
+    super.key,
+    required this.data,
+  });
+
+  final Map<String, dynamic> data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                data['userName'],
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: AppHelper.appColor1,
+                  ),
+                  FutureBuilder(
+                    future: FireBase.getRatingRestaurants(data['uid']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return Text(
+                            '0.0',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          );
+                        }
+                        double rating =
+                            double.parse(snapshot.data!.toStringAsFixed(1));
+                        return Text(
+                          rating.toString(),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        );
+                      } else {
+                        return Text(
+                          '0.0',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  FutureBuilder(
+                    future: FireBase.getReviews(data['uid']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return Text(
+                            '(0)',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          );
+                        }
+                        return Text(
+                          '(${snapshot.data!.length.toString()})',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        );
+                      } else {
+                        return Text(
+                          '(0)',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          const Text('210TL minimum sipariş'),
+          const SizedBox(height: 5),
+          Row(
+            children: [
+              Icon(
+                Icons.timelapse,
+                color: AppHelper.appColor1,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                '30-40 dk',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

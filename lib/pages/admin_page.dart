@@ -63,7 +63,8 @@ class AdminPage extends StatelessWidget {
                     Navigator.pushNamed(context, '/adminPageProducts'),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/adminOrdersPage'),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -84,7 +85,8 @@ class AdminPage extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () async {},
+                onPressed: () =>
+                    Navigator.pushNamed(context, '/adminStatisticsPage'),
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,

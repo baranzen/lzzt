@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lzzt/pages/admin_orders_page.dart';
 import 'package:lzzt/pages/admin_page.dart';
 import 'package:lzzt/pages/admin_page_products.dart';
+import 'package:lzzt/pages/admin_statistics_page.dart';
+
 import 'package:lzzt/pages/home_page.dart';
 import 'package:lzzt/pages/login_page.dart';
 import 'package:lzzt/pages/restaurant_page.dart';
 import 'package:lzzt/pages/signin_page.dart';
 import 'package:lzzt/pages/user_basket_page.dart';
 import 'package:lzzt/pages/user_orders_page.dart';
+
 import 'package:lzzt/pages/user_page.dart';
 import 'package:lzzt/providers/app_provider.dart';
 
@@ -35,6 +39,12 @@ class RouteGenerator {
         return pageRouteBuilder(const AdminPage());
       case '/adminPageProducts':
         return pageRouteBuilder(const AdminPageProducts());
+      case '/adminOrdersPage':
+        return pageRouteBuilder(const AdminOrdersPage());
+      case '/adminStatisticsPage':
+        return pageRouteBuilder(
+          const AdminStatisticsPage(),
+        );
     }
     return null;
   }
